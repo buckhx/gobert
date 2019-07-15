@@ -32,7 +32,7 @@ var _Bcjk = &unicode.RangeTable{
 }
 
 // IsWhitespace checks whether rune c is a BERT whitespace character
-func IsWhitespace(c rune) bool {
+func isWhitespace(c rune) bool {
 	switch c {
 	case ' ':
 		return true
@@ -47,7 +47,7 @@ func IsWhitespace(c rune) bool {
 }
 
 // IsControl checks wher rune c is a BERT control character
-func IsControl(c rune) bool {
+func isControl(c rune) bool {
 	switch c {
 	case '\t':
 		return false
@@ -60,11 +60,11 @@ func IsControl(c rune) bool {
 }
 
 // IsPunctuation checks wher rune c is a BERT punctuation character
-func IsPunctuation(c rune) bool {
+func isPunctuation(c rune) bool {
 	return unicode.In(c, _Bp, unicode.P)
 }
 
 // IsChinese validates that rune c is in the CJK range according to BERT spec
-func IsChinese(c rune) bool {
+func isChinese(c rune) bool {
 	return unicode.In(c, _Bcjk, unicode.P)
 }

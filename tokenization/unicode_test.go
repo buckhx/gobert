@@ -1,9 +1,7 @@
-package tokenization_test
+package tokenization
 
 import (
 	"testing"
-
-	"github.com/buckhx/gobert/tokenization"
 )
 
 /***** Ported Tests *****/
@@ -21,7 +19,7 @@ func TestIsWhitespace(t *testing.T) {
 		{'A', false},
 		{'-', false},
 	} {
-		if tokenization.IsWhitespace(test.char) != test.valid {
+		if isWhitespace(test.char) != test.valid {
 			t.Errorf("Invalid Whitespace Validation - %U, %t", test.char, test.valid)
 		}
 	}
@@ -39,7 +37,7 @@ func TestIsControl(t *testing.T) {
 		{'\r', false},
 		{'\U0001F4A9', false},
 	} {
-		if tokenization.IsControl(test.char) != test.valid {
+		if isControl(test.char) != test.valid {
 			t.Errorf("Invalid Control Validation - %U, %t", test.char, test.valid)
 		}
 	}
@@ -57,7 +55,7 @@ func TestIsPunctuation(t *testing.T) {
 		{'A', false},
 		{' ', false},
 	} {
-		if tokenization.IsPunctuation(test.char) != test.valid {
+		if isPunctuation(test.char) != test.valid {
 			t.Errorf("Invalid Punctuation Validation - %U, %t", test.char, test.valid)
 		}
 	}
@@ -75,7 +73,7 @@ func TestIsChinese(t *testing.T) {
 		{'A', false},
 		{' ', false},
 	} {
-		if tokenization.IsChinese(test.char) != test.valid {
+		if isChinese(test.char) != test.valid {
 			t.Errorf("Invalid Chinese (CJK) Validation - %U, %t", test.char, test.valid)
 		}
 	}
