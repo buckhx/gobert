@@ -16,6 +16,21 @@ var _Bp = &unicode.RangeTable{
 	LatinOffset: 4, // All less than 0x00FF
 }
 
+var _Bcjk = &unicode.RangeTable{
+	R16: []unicode.Range16{
+		{0x4e00, 0x9fff, 1},
+		{0x3400, 0x4dbf, 1},
+		{0xf900, 0xfaff, 1},
+	},
+	R32: []unicode.Range32{
+		{0x20000, 0x2A6DF, 1},
+		{0x2A700, 0x2B73F, 1},
+		{0x2B740, 0x2B81F, 1},
+		{0x2B820, 0x2CEAF, 1},
+		{0x2F800, 0x2FA1F, 1},
+	},
+}
+
 // IsWhitespace checks whether rune c is a BERT whitespace character
 func IsWhitespace(c rune) bool {
 	switch c {
@@ -47,4 +62,9 @@ func IsControl(c rune) bool {
 // IsPunctuation checks wher rune c is a BERT punctuation character
 func IsPunctuation(c rune) bool {
 	return unicode.In(c, _Bp, unicode.P)
+}
+
+// IsChinese validates that rune c is in the CJK range according to BERT spec
+func IsChinese(c rune) bool {
+	return unicode.In(c, _Bcjk, unicode.P)
 }

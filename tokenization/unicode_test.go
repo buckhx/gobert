@@ -6,6 +6,8 @@ import (
 	"github.com/buckhx/gobert/tokenization"
 )
 
+/***** Ported Tests *****/
+
 func TestIsWhitespace(t *testing.T) {
 	for _, test := range []struct {
 		char  rune
@@ -57,6 +59,24 @@ func TestIsPunctuation(t *testing.T) {
 	} {
 		if tokenization.IsPunctuation(test.char) != test.valid {
 			t.Errorf("Invalid Punctuation Validation - %U, %t", test.char, test.valid)
+		}
+	}
+}
+
+/***** New Tests *****/
+
+func TestIsChinese(t *testing.T) {
+	for _, test := range []struct {
+		char  rune
+		valid bool
+	}{
+		{'\u535A', true},
+		{'\u63A8', true},
+		{'A', false},
+		{' ', false},
+	} {
+		if tokenization.IsChinese(test.char) != test.valid {
+			t.Errorf("Invalid Chinese (CJK) Validation - %U, %t", test.char, test.valid)
 		}
 	}
 }
