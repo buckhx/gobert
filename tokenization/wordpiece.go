@@ -18,7 +18,6 @@ func (wt WordPiece) Tokenize(text string) []string {
 			toks = append(toks, unknownToken)
 			continue
 		}
-		// isbad?
 		for len(tok) > 0 && tok != "##" {
 			sub := wt.Vocab.LongestSubstring(tok)
 			if sub == "" {
@@ -26,7 +25,7 @@ func (wt WordPiece) Tokenize(text string) []string {
 				break
 			}
 			toks = append(toks, sub)
-			tok = fmt.Sprintf("##%s", tok[:len(sub)])
+			tok = fmt.Sprintf("##%s", tok[len(sub):])
 		}
 	}
 	return toks
