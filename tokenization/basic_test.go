@@ -1,9 +1,11 @@
 package tokenization_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/buckhx/gobert/tokenization"
+	"github.com/buckhx/gobert/vocab"
 )
 
 func TestBasic(t *testing.T) {
@@ -21,28 +23,28 @@ func TestBasic(t *testing.T) {
 	} {
 		tkz := tokenization.Basic{Lower: test.lower}
 		toks := tkz.Tokenize(test.text)
-		if !equalTokens(toks, test.tokens) {
+		if !reflect.DeepEqual(toks, test.tokens) {
 			t.Errorf("Test %s - Invalid Tokenization - Want: %v, Got: %v", test.name, test.tokens, toks)
 		}
 	}
 }
 
 func TestWordPiece(t *testing.T) {
-	vocab := tokenization.NewVocab([]string{"[UNK]", "[CLS]", "[SEP]", "want", "##want", "##ed", "wa", "un", "runn", "##ing"})
+	voc := vocab.New([]string{"[UNK]", "[CLS]", "[SEP]", "want", "##want", "##ed", "wa", "un", "runn", "##ing"})
 	for i, test := range []struct {
 		text   string
 		tokens []string
 	}{
-		{"", []string{}},
+		{"", nil},
 		{"unwanted", []string{"un", "##want", "##ed"}},
 		{"unwanted running", []string{"un", "##want", "##ed", "runn", "##ing"}},
 		// TODO determine if these tests are correct
 		//	{"unwantedX", []string{"[UNK]"}},
 		//{"unwantedX running", []string{"[UNK]", "runn", "##ing"}},
 	} {
-		tkz := tokenization.WordPiece{Vocab: vocab}
+		tkz := tokenization.WordPiece{Vocab: voc}
 		toks := tkz.Tokenize(test.text)
-		if !equalTokens(toks, test.tokens) {
+		if !reflect.DeepEqual(toks, test.tokens) {
 			t.Errorf("Test %d - Invalid Tokenization - Want: %v, Got: %v", i, test.tokens, toks)
 		}
 	}

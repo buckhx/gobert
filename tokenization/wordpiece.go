@@ -1,12 +1,16 @@
 package tokenization
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/buckhx/gobert/vocab"
+)
 
 const maxWordChars = 200
 const unknownToken = "[UNK]"
 
 type WordPiece struct {
-	Vocab Vocab
+	Vocab vocab.Vocab
 }
 
 func (wt WordPiece) Tokenize(text string) []string {
