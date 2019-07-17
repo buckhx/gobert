@@ -13,14 +13,14 @@ const DefaultMaxWordChars = 200
 const DefaultUnknownToken = "[UNK]"
 
 type Wordpiece struct {
-	vocab        vocab.Vocab
+	vocab        vocab.Dict
 	maxWordChars int
 	unknownToken string
 }
 
 // NewWordpiece returns a WordpieceTokenizer with the default settings.
 // Generally should be used in a FullTokenizer
-func NewWordpiece(voc vocab.Vocab) Wordpiece {
+func NewWordpiece(voc vocab.Dict) Wordpiece {
 	return Wordpiece{
 		vocab:        voc,
 		maxWordChars: DefaultMaxWordChars,

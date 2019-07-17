@@ -7,18 +7,18 @@ import (
 	"github.com/buckhx/gobert/vocab"
 )
 
-func TestNewVocab(t *testing.T) {
+func TestNewDict(t *testing.T) {
 	toks := []string{"abc", "def", "\u535A"}
 	voc := vocab.New(toks)
 	// TODO better testing and cover set semantics
 	for i, tok := range toks {
 		if voc.Get(tok) != vocab.ID(i) {
-			t.Error("New Vocab Error")
+			t.Error("New Dict Error")
 		}
 	}
 }
 
-func TestVocabLongestSubstring(t *testing.T) {
+func TestDictLongestSubstring(t *testing.T) {
 	toks := []string{"a", "aa", "aaa", "\u535A"}
 	voc := vocab.New(toks)
 	for i, test := range []struct {
@@ -37,7 +37,7 @@ func TestVocabLongestSubstring(t *testing.T) {
 	}
 }
 
-func TestVocabConvertTokens(t *testing.T) {
+func TestDictConvertTokens(t *testing.T) {
 	voc := vocab.New([]string{"[UNK]", "[CLS]", "[SEP]", "want", "##want", "##ed", "wa", "un", "runn", "##ing"})
 	for i, test := range []struct {
 		tokens []string
@@ -47,7 +47,7 @@ func TestVocabConvertTokens(t *testing.T) {
 	} {
 		ids := voc.ConvertTokens(test.tokens)
 		if !reflect.DeepEqual(ids, test.ids) {
-			t.Errorf("Test %d - Invalid Vocab IDs - Want: %v, Got: %v", i, test.ids, ids)
+			t.Errorf("Test %d - Invalid Dict IDs - Want: %v, Got: %v", i, test.ids, ids)
 		}
 	}
 }
