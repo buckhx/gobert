@@ -1,5 +1,10 @@
 package vocab
 
+import (
+	"bufio"
+	"os"
+)
+
 // ID is used to identify vocab items
 type ID int32
 
@@ -13,6 +18,23 @@ func (id ID) String() string {
 // NOTE: python uses an OrderedDict, unsure of implications
 type Vocab struct {
 	tokens map[string]ID
+}
+
+// FromFile will read a newline delimited file into a Vocab
+func FromFile(path string) (Vocab, error) {
+	// TODO test
+	f, err := os.Open(path)
+	if err != nil {
+		// TODO wrap w/ stdlib
+		return err
+	}
+	defer f.Close()
+	scanner := bufio.NewScanner(f)
+	voc := Vocab{}
+	for scanner.Scan() {
+		voc.Add(scanner.Text())
+	}
+	return voc
 }
 
 func New(tokens []string) Vocab {
