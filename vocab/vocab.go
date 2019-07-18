@@ -8,6 +8,10 @@ import (
 // ID is used to identify vocab items
 type ID int32
 
+func (id ID) Int32() int32 {
+	return int32(id)
+}
+
 /*
 func (id ID) String() string {
 	return fmt.Sprint(id)
@@ -51,7 +55,7 @@ func (v Dict) Add(token string) {
 }
 
 // Get will return the ID of the token in the vocab. Will be negative if it doesn't exists
-func (v Dict) Get(token string) ID {
+func (v Dict) GetID(token string) ID {
 	id, ok := v.tokens[token]
 	if !ok {
 		return ID(-1)

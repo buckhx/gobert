@@ -11,9 +11,18 @@ type Tokenizer interface {
 	Tokenize(text string) (tokens []string)
 }
 
+type VocabProvider interface {
+	Vocab() vocab.Dict
+}
+
+type VocabTokenizer interface {
+	Tokenizer
+	VocabProvider
+}
+
 // NewTokenizer returns a new FullTokenizer
 // Use Option array to modify default behavior
-func NewTokenizer(voc vocab.Dict, opts ...Option) Tokenizer {
+func NewTokenizer(voc vocab.Dict, opts ...Option) VocabTokenizer {
 	tkz := Full{
 		Basic:     NewBasic(),
 		Wordpiece: NewWordpiece(voc),
