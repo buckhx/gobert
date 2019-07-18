@@ -19,12 +19,12 @@ var _Bcjk = &unicode.RangeTable{
 		{0x3400, 0x4dbf, 1},
 		{0xf900, 0xfaff, 1},
 	},
-	R32: []unicode.Range32{
-		{0x20000, 0x2A6DF, 1},
-		{0x2A700, 0x2B73F, 1},
-		{0x2B740, 0x2B81F, 1},
-		{0x2B820, 0x2CEAF, 1},
-		{0x2F800, 0x2FA1F, 1},
+	R32: []unicode.Range32{ //govet reports errors on unkeyed fields, but only for this range...
+		{Lo: 0x20000, Hi: 0x2a6df, Stride: 1},
+		{Lo: 0x2a700, Hi: 0x2b73f, Stride: 1},
+		{Lo: 0x2b740, Hi: 0x2b81f, Stride: 1},
+		{Lo: 0x2b820, Hi: 0x2ceaf, Stride: 1},
+		{Lo: 0x2f800, Hi: 0x2fa1f, Stride: 1},
 	},
 }
 

@@ -72,7 +72,7 @@ func truncate(seqs [][]string, maxlen int) [][]string {
 	for i := range seqs {
 		seqlen += len(seqs[i])
 	}
-	for seqlen = seqlen; seqlen > maxlen; seqlen-- {
+	for slen := seqlen; slen > maxlen; slen-- {
 		// Sort to get longest first
 		var mi, mv int
 		for i := len(seqs) - 1; i >= 0; i-- {

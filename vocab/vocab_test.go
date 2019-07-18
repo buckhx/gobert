@@ -1,7 +1,6 @@
 package vocab_test
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/buckhx/gobert/vocab"
@@ -37,6 +36,7 @@ func TestDictLongestSubstring(t *testing.T) {
 	}
 }
 
+/*
 func TestDictConvertTokens(t *testing.T) {
 	voc := vocab.New([]string{"[UNK]", "[CLS]", "[SEP]", "want", "##want", "##ed", "wa", "un", "runn", "##ing"})
 	for i, test := range []struct {
@@ -51,3 +51,4 @@ func TestDictConvertTokens(t *testing.T) {
 		}
 	}
 }
+*/

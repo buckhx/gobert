@@ -14,7 +14,7 @@ type Tokenizer interface {
 // VocabTokenizer comprises of a Tokenizer and VocabProvider
 type VocabTokenizer interface {
 	Tokenizer
-	VocabProvider
+	vocab.Provider
 }
 
 // NewTokenizer returns a new FullTokenizer
