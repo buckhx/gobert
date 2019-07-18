@@ -19,6 +19,8 @@ func NewBasic() Basic {
 	return Basic{Lower: true}
 }
 
+// Tokenize will segment a texxt into individual tokens. Follows algorithm from ref-imp
+// Clean, PadChinese, Whitespace Split, Lower?, SplitPunc, Whitespace Split
 func (bt Basic) Tokenize(text string) []string {
 	// TODO assert text is unicode
 	// text = unicode(text), from python impl

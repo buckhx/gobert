@@ -1,4 +1,4 @@
-// package Tokenization supplies tokenizzation operations for BERT.
+// Package tokenize supplies tokenizzation operations for BERT.
 // Ports the tokenizer.py capbilites from the core BERT repo
 // NOTE: All defintions are related to BERT and may vary from unicode defintions,
 // for example, BERT considers '$' punctuation, but unicode does not.
@@ -11,10 +11,7 @@ type Tokenizer interface {
 	Tokenize(text string) (tokens []string)
 }
 
-type VocabProvider interface {
-	Vocab() vocab.Dict
-}
-
+// VocabTokenizer comprises of a Tokenizer and VocabProvider
 type VocabTokenizer interface {
 	Tokenizer
 	VocabProvider
@@ -46,7 +43,7 @@ func WithLower(lower bool) Option {
 	}
 }
 
-// WithUnkownToken will alter the unkown token from default [UNK]
+// WithUnknownToken will alter the unkown token from default [UNK]
 func WithUnknownToken(unk string) Option {
 	return func(tkz Full) Full {
 		tkz.Wordpiece.unknownToken = unk

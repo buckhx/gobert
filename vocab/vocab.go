@@ -5,18 +5,18 @@ import (
 	"os"
 )
 
+// Provider is an interface for exposing a vocab
+type Provider interface {
+	Vocab() Dict
+}
+
 // ID is used to identify vocab items
 type ID int32
 
+// Int32 int32 representation of an ID
 func (id ID) Int32() int32 {
 	return int32(id)
 }
-
-/*
-func (id ID) String() string {
-	return fmt.Sprint(id)
-}
-*/
 
 // Dict is a container for tokens
 // NOTE: python uses an OrderedDict, unsure of implications
@@ -41,6 +41,7 @@ func FromFile(path string) (Dict, error) {
 	return voc, nil
 }
 
+// New iwll return a a covab dict from the given tokens, IDs will match index
 func New(tokens []string) Dict {
 	v := make(map[string]ID, len(tokens))
 	for i, t := range tokens {
@@ -54,7 +55,7 @@ func (v Dict) Add(token string) {
 	v.tokens[token] = ID(v.Size())
 }
 
-// Get will return the ID of the token in the vocab. Will be negative if it doesn't exists
+// GetID will return the ID of the token in the vocab. Will be negative if it doesn't exists
 func (v Dict) GetID(token string) ID {
 	id, ok := v.tokens[token]
 	if !ok {
@@ -85,7 +86,7 @@ func (v Dict) HasToken(token string) bool {
 }
 */
 
-// SIze returns the size of the vocabulary
+// Size returns the size of the vocabulary
 func (v Dict) Size() int {
 	return len(v.tokens)
 }
@@ -102,6 +103,7 @@ func (v Dict) LongestSubstring(token string) string {
 	return ""
 }
 
+/*
 func (v Dict) ConvertItems(items []string) []ID {
 	ids := make([]ID, len(items))
 	for i, m := range items {
@@ -113,3 +115,4 @@ func (v Dict) ConvertItems(items []string) []ID {
 func (v Dict) ConvertTokens(tokens []string) []ID {
 	return v.ConvertItems(tokens)
 }
+*/

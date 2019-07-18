@@ -6,12 +6,15 @@ import (
 	"github.com/buckhx/gobert/tokenize"
 )
 
+// Static tokens
 const (
 	ClassToken        = "[CLS]"
 	SeparatorToken    = "[SEP]"
 	SequenceSeparator = " ||| "
 )
 
+// Feature is an input feature for a BERT model.
+// Maps to extract_features.InputFeature in ref-impl
 type Feature struct {
 	ID       int
 	Tokens   []string
