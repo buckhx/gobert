@@ -16,7 +16,7 @@ type Basic struct {
 
 // NewBasic returns a basic tokenizer. Method is supplied to match constructor of other tokenizers
 func NewBasic() Basic {
-	return Basic{}
+	return Basic{Lower: true}
 }
 
 func (bt Basic) Tokenize(text string) []string {

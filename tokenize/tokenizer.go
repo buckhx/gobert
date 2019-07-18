@@ -37,10 +37,11 @@ func NewTokenizer(voc vocab.Dict, opts ...Option) VocabTokenizer {
 // TODO add tests for these behavior changes
 type Option func(tkz Full) Full
 
-// WithLower will lowercase all input
-func WithLower() Option {
+// WithLower will lowercase all input if set to true, or skip lowering if false
+// NOTE: kink from reference implementation is that lowering also strips accents
+func WithLower(lower bool) Option {
 	return func(tkz Full) Full {
-		tkz.Basic.Lower = true
+		tkz.Basic.Lower = lower
 		return tkz
 	}
 }
