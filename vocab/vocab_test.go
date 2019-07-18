@@ -12,7 +12,7 @@ func TestNewDict(t *testing.T) {
 	voc := vocab.New(toks)
 	// TODO better testing and cover set semantics
 	for i, tok := range toks {
-		if voc.Get(tok) != vocab.ID(i) {
+		if voc.GetID(tok) != vocab.ID(i) {
 			t.Error("New Dict Error")
 		}
 	}
