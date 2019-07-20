@@ -1,0 +1,3 @@
+[submodule "python/bert"]
+	path = python/bert
+	url = git@github.com:google-research/bert.git
