@@ -7,7 +7,7 @@ import (
 
 // https://arxiv.org/pdf/1609.08144.pdf
 
-func TestTokenizeWhitespace(t *testing.T) {
+func Test_tokenizeWhitespace(t *testing.T) {
 	for i, test := range []struct {
 		text   string
 		tokens []string
@@ -30,7 +30,7 @@ func TestTokenizeWhitespace(t *testing.T) {
 	}
 }
 
-func TestPadChinese(t *testing.T) {
+func Test_padChinese(t *testing.T) {
 	for i, test := range []struct {
 		text   string
 		padded string

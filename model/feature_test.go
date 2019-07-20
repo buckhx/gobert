@@ -31,7 +31,7 @@ func TestSequenceFeature(t *testing.T) {
 	}
 }
 
-func TestSequenceTruncate(t *testing.T) {
+func Test_sequenceTruncate(t *testing.T) {
 	for _, test := range []struct {
 		seqs   [][]string
 		len    int

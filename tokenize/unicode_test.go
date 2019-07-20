@@ -6,7 +6,7 @@ import (
 
 /***** Ported Tests *****/
 
-func TestIsWhitespace(t *testing.T) {
+func Test_isWhitespace(t *testing.T) {
 	for _, test := range []struct {
 		char  rune
 		valid bool
@@ -25,7 +25,7 @@ func TestIsWhitespace(t *testing.T) {
 	}
 }
 
-func TestIsControl(t *testing.T) {
+func Test_isControl(t *testing.T) {
 	for _, test := range []struct {
 		char  rune
 		valid bool
@@ -43,7 +43,7 @@ func TestIsControl(t *testing.T) {
 	}
 }
 
-func TestIsPunctuation(t *testing.T) {
+func Test_isPunctuation(t *testing.T) {
 	for _, test := range []struct {
 		char  rune
 		valid bool
@@ -63,7 +63,7 @@ func TestIsPunctuation(t *testing.T) {
 
 /***** New Tests *****/
 
-func TestIsChinese(t *testing.T) {
+func Test_isChinese(t *testing.T) {
 	for _, test := range []struct {
 		char  rune
 		valid bool
