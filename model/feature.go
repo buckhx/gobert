@@ -19,8 +19,8 @@ type Feature struct {
 	ID       int
 	Tokens   []string
 	TokenIDs []int32
-	Mask     []int // short?
-	TypeIDs  []int // seqeuence ids, short?
+	Mask     []int32 // short?
+	TypeIDs  []int32 // seqeuence ids, short?
 }
 
 // SequenceFeature will take a sequence string and
@@ -30,8 +30,8 @@ func SequenceFeature(tkz tokenize.VocabTokenizer, seqLen int, text string) Featu
 		ID:       0, // TODO
 		Tokens:   make([]string, seqLen),
 		TokenIDs: make([]int32, seqLen),
-		Mask:     make([]int, seqLen),
-		TypeIDs:  make([]int, seqLen),
+		Mask:     make([]int32, seqLen),
+		TypeIDs:  make([]int32, seqLen),
 	}
 	parts := strings.Split(text, SequenceSeparator)
 	seqs := make([][]string, len(parts))
@@ -50,14 +50,13 @@ func SequenceFeature(tkz tokenize.VocabTokenizer, seqLen int, text string) Featu
 		for _, tok := range seq {
 			f.Tokens[s] = tok
 			f.TokenIDs[s] = voc.GetID(tok).Int32()
-			f.TypeIDs[s] = sid
+			f.TypeIDs[s] = int32(sid)
 			f.Mask[s] = 1
-			// TODO f.TokenIDs
 			s++
 		}
 		f.Tokens[s] = SeparatorToken
 		f.TokenIDs[s] = voc.GetID(SeparatorToken).Int32()
-		f.TypeIDs[s] = sid
+		f.TypeIDs[s] = int32(sid)
 		f.Mask[s] = 1
 		s++
 	}

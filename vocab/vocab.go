@@ -34,7 +34,7 @@ func FromFile(path string) (Dict, error) {
 	}
 	defer f.Close()
 	scanner := bufio.NewScanner(f)
-	voc := Dict{}
+	voc := Dict{tokens: map[string]ID{}}
 	for scanner.Scan() {
 		voc.Add(scanner.Text())
 	}

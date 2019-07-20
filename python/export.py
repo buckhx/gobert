@@ -53,7 +53,8 @@ with tf.Session() as sess:
             [t.dtype.as_datatype_enum for t in inputs],
     )
     # Save
-    builder.add_meta_graph_and_variables(sess, ["bert-uncased"])
+    builder.add_meta_graph_and_variables(sess, ["bert-uncased"],clear_devices=True)
+
 builder.save()
 
 print("Exported SavedModel:", out_dir)
