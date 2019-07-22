@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/buckhx/gobert/model/estimator"
 	"github.com/buckhx/gobert/tokenize"
 	"github.com/buckhx/gobert/vocab"
@@ -15,38 +17,51 @@ const (
 	OutputOp      = "outputs"
 )
 
+const DefaultSeqLen = 128
+
+/*
+func NewBertClassifier(path string, opts ...BertOption) (Bert, error) {
+	return NewBert(path, append(opts,
+		WithModelFunc(func(m *tf.SavedModel) ([]tf.Output, []*tf.Operation) {
+			return []tf.Output{
+				m.Graph.Operation("SoftMax/Classifier").Output(0),
+			}, nil
+		}),
+	)...)
+}
+*/
+
+type TensorInputFunc func(map[string]*tf.Tensor) estimator.InputFunc
+
+type ValueProvider interface {
+	Value() interface{}
+}
+
 type Bert struct {
 	m         *tf.SavedModel
 	p         estimator.Predictor
-	seqLen    int32
-	tokenizer tokenize.VocabTokenizer
+	factory   *FeatureFactory
 	modelFunc estimator.ModelFunc
-	inputFunc TextInputFunc
+	inputFunc TensorInputFunc
 }
 
-func NewBert(path string, vocabPath string) (Bert, error) {
+func NewBert(path string, opts ...BertOption) (Bert, error) {
 	tags := []string{"bert-uncased"} // TODO configure tags
-	voc, err := vocab.FromFile(vocabPath)
+	voc, err := vocab.FromFile(path + "/vocab.txt")
 	if err != nil {
 		return Bert{}, err
 	}
 	tkz := tokenize.NewTokenizer(voc)
+	fb := &FeatureFactory{tokenizer: tkz, seqLen: DefaultSeqLen}
 	m, err := tf.LoadSavedModel(path, tags, nil)
 	if err != nil {
-		return nil, err
+		return Bert{}, err
 	}
 	b := Bert{
-		m:         m,
-		seqLen:    64, //TODO default
-		tokenizer: tkz,
-		inputFunc: func(texts ...string) estimator.InputFunc {
-			fb := FeatureFactory{tokenizer: tkz, seqLen: seqLen}
-			fs := fb.Features(texts...)
-			inputs, err := Tensors(fs...)
-			if err != nil {
-				return nil, err
-			}
-			return func(m *tf.SavedModel) [tf.Output]*tf.Tensor {
+		m:       m,
+		factory: fb,
+		inputFunc: func(inputs map[string]*tf.Tensor) estimator.InputFunc {
+			return func(m *tf.SavedModel) map[tf.Output]*tf.Tensor {
 				return map[tf.Output]*tf.Tensor{
 					m.Graph.Operation(IDsOpName).Output(0):     inputs[IDsOpName],
 					m.Graph.Operation(MaskOpName).Output(0):    inputs[MaskOpName],
@@ -54,99 +69,39 @@ func NewBert(path string, vocabPath string) (Bert, error) {
 				}
 			}
 		},
-		modelFunc: func(m *tf.SavedModel) ([]tf.Ouput, []*tf.Operation) {
+		modelFunc: func(m *tf.SavedModel) ([]tf.Output, []*tf.Operation) {
 			return []tf.Output{
 					m.Graph.Operation(OutputOp).Output(0),
 				},
 				nil
 		},
 	}
-	p := estimator.NewPredictor(m, b.modelFunc)
+	for _, opt := range opts {
+		b = opt(b)
+	}
+	b.p = estimator.NewPredictor(m, b.modelFunc)
+	return b, nil
 }
 
-/*
-	p := estimator.NewPredictor(m, func(m *tf.SavedModel) ([]tf.Ouput, []*tf.Operation) {
-		return []tf.Output{
-				b.m.Graph.Operation(OutputOp).Output(0),
-			},
-			nil
-	})
-	return Bert{
-		m:         m,
-		tokenizer: tkz,
-		seqLen:    seqLen,
-	}, nil
-*/
-
-func (b Bert) Predict(texts ...string) [][][]float32 {
-	b.p.Predict(b.inputFunc(texts...))
-}
-
-type TextInputFunc func(texts ...string) estimator.InputFunc
-
-func defaultInput(texts ...string) estimator.InputFunc {
-	fb := FeatureFactory{tokenizer: b.tokenizer, seqLen: b.seqLen}
-	fs := fb.Features(texts...)
+func (b Bert) PredictValues(texts ...string) ([]ValueProvider, error) {
+	fs := b.factory.Features(texts...)
 	inputs, err := Tensors(fs...)
 	if err != nil {
 		return nil, err
 	}
-	return map[tf.Output]*tf.Tensor{
-		m.Graph.Operation(IDsOpName).Output(0):     inputs[IDsOpName],
-		m.Graph.Operation(MaskOpName).Output(0):    inputs[MaskOpName],
-		m.Graph.Operation(TypeIDsOpName).Output(0): inputs[TypeIDsOpName],
-	}
-}
-
-// Infer retturns an interfence from the given texts
-// The text inferencecs are returned with the stame index they are supplied with
-// The esecodin dimension corresponds to the token position
-// TODO: decide if a wrapper API should be first-class or work w/ raw data
-func (b Bert) Infer(texts ...string) ([][][]float32, error) {
-	fb := FeatureFactory{tokenizer: b.tokenizer, seqLen: b.seqLen}
-	fs := fb.Features(texts...)
-	inputs, err := Tensors(fs...)
+	res, err := b.p.Predict(b.inputFunc(inputs))
 	if err != nil {
 		return nil, err
 	}
-	res, err := b.m.Session.Run(
-		map[tf.Output]*tf.Tensor{
-			b.m.Graph.Operation(IDsOpName).Output(0):     inputs[IDsOpName],
-			b.m.Graph.Operation(MaskOpName).Output(0):    inputs[MaskOpName],
-			b.m.Graph.Operation(TypeIDsOpName).Output(0): inputs[TypeIDsOpName],
-		},
-		[]tf.Output{
-			b.m.Graph.Operation(OutputOp).Output(0),
-		},
-		nil,
-	)
-	if err != nil {
-		return nil, err
+	//	return res, nil
+	vals := make([]ValueProvider, len(res))
+	for i, t := range res {
+		vals[i] = ValueProvider(t)
 	}
-	if len(res) != 1 {
-		return nil, fmt.Errorf("Invalid Model Output Shape: [%d]", len(res))
-	}
-	mat, ok := res[0].Value().([][][]float32)
-	if !ok {
-		return nil, fmt.Errorf("Invalid Model Output Assertion to [][][]float32")
-	}
-	return mat, nil
-	/*
-		infs := make([]Inference, len(raw))
-		for i, row := range raw {
-			toks := make([]Vector, len(row))
-			for j, v := range row {
-				toks[j] = Vector(v)
-			}
-			infs[i] = Inference{
-				tokens: toks,
-			}
-		}
-		return infs, nil
-	*/
+	return vals, nil
 }
 
-func debugModel(m *tf.SavedModel) {
+func printModel(m *tf.SavedModel) {
 	fmt.Printf("%+v\n", m)
 	fmt.Println("Session")
 	fmt.Println("\tDevice")

@@ -2,45 +2,35 @@ package model
 
 import (
 	"github.com/buckhx/gobert/model/estimator"
-	"github.com/buckhx/gobert/tokenize"
+	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
-
-/*
-type Bert struct {
-	m         *tf.SavedModel
-	tokenizer tokenize.VocabTokenizer
-	seqLen    int32
-	modelFn   estimator.ModelFunc
-	inputFn   estimator.InputFunc
-}
-*/
 
 type BertOption func(b Bert) Bert
 
-func WithSeqLen(l int32) BertOption {
+func WithFeatureFactory(ff *FeatureFactory) BertOption {
 	return func(b Bert) Bert {
-		b.seqLen = l
+		b.factory = ff
 		return b
 	}
 }
 
 func WithModelFunc(fn estimator.ModelFunc) BertOption {
 	return func(b Bert) Bert {
-		b.modelFn = fn
+		b.modelFunc = fn
 		return b
 	}
 }
 
-func WithInputFunc(fn estimator.InputFunc) BertOption {
+func WithInputFunc(fn TensorInputFunc) BertOption {
 	return func(b Bert) Bert {
-		b.inputFn = fn
+		b.inputFunc = fn
 		return b
 	}
 }
 
-func WithTokenizer(tk tokenize.VocabTokenizer) BertOption {
+func WithSavedModel(m *tf.SavedModel) BertOption {
 	return func(b Bert) Bert {
-		b.tokenizers = tk
+		b.m = m
 		return b
 	}
 }
