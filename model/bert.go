@@ -1,8 +1,7 @@
 package model
 
 import (
-	"fmt"
-
+	"github.com/buckhx/gobert/model/estimator"
 	"github.com/buckhx/gobert/tokenize"
 	"github.com/buckhx/gobert/vocab"
 	tf "github.com/tensorflow/tensorflow/tensorflow/go"
@@ -18,12 +17,15 @@ const (
 
 type Bert struct {
 	m         *tf.SavedModel
-	tokenizer tokenize.VocabTokenizer
+	p         estimator.Predictor
 	seqLen    int32
+	tokenizer tokenize.VocabTokenizer
+	modelFunc estimator.ModelFunc
+	inputFunc TextInputFunc
 }
 
-func NewBert(path string, vocabPath string, seqLen int32) (Bert, error) {
-	tags := []string{"bert-uncased"}
+func NewBert(path string, vocabPath string) (Bert, error) {
+	tags := []string{"bert-uncased"} // TODO configure tags
 	voc, err := vocab.FromFile(vocabPath)
 	if err != nil {
 		return Bert{}, err
@@ -31,14 +33,69 @@ func NewBert(path string, vocabPath string, seqLen int32) (Bert, error) {
 	tkz := tokenize.NewTokenizer(voc)
 	m, err := tf.LoadSavedModel(path, tags, nil)
 	if err != nil {
-		return Bert{}, err
+		return nil, err
 	}
+	b := Bert{
+		m:         m,
+		seqLen:    64, //TODO default
+		tokenizer: tkz,
+		inputFunc: func(texts ...string) estimator.InputFunc {
+			fb := FeatureFactory{tokenizer: tkz, seqLen: seqLen}
+			fs := fb.Features(texts...)
+			inputs, err := Tensors(fs...)
+			if err != nil {
+				return nil, err
+			}
+			return func(m *tf.SavedModel) [tf.Output]*tf.Tensor {
+				return map[tf.Output]*tf.Tensor{
+					m.Graph.Operation(IDsOpName).Output(0):     inputs[IDsOpName],
+					m.Graph.Operation(MaskOpName).Output(0):    inputs[MaskOpName],
+					m.Graph.Operation(TypeIDsOpName).Output(0): inputs[TypeIDsOpName],
+				}
+			}
+		},
+		modelFunc: func(m *tf.SavedModel) ([]tf.Ouput, []*tf.Operation) {
+			return []tf.Output{
+					m.Graph.Operation(OutputOp).Output(0),
+				},
+				nil
+		},
+	}
+	p := estimator.NewPredictor(m, b.modelFunc)
+}
+
+/*
+	p := estimator.NewPredictor(m, func(m *tf.SavedModel) ([]tf.Ouput, []*tf.Operation) {
+		return []tf.Output{
+				b.m.Graph.Operation(OutputOp).Output(0),
+			},
+			nil
+	})
 	return Bert{
 		m:         m,
 		tokenizer: tkz,
 		seqLen:    seqLen,
 	}, nil
+*/
 
+func (b Bert) Predict(texts ...string) [][][]float32 {
+	b.p.Predict(b.inputFunc(texts...))
+}
+
+type TextInputFunc func(texts ...string) estimator.InputFunc
+
+func defaultInput(texts ...string) estimator.InputFunc {
+	fb := FeatureFactory{tokenizer: b.tokenizer, seqLen: b.seqLen}
+	fs := fb.Features(texts...)
+	inputs, err := Tensors(fs...)
+	if err != nil {
+		return nil, err
+	}
+	return map[tf.Output]*tf.Tensor{
+		m.Graph.Operation(IDsOpName).Output(0):     inputs[IDsOpName],
+		m.Graph.Operation(MaskOpName).Output(0):    inputs[MaskOpName],
+		m.Graph.Operation(TypeIDsOpName).Output(0): inputs[TypeIDsOpName],
+	}
 }
 
 // Infer retturns an interfence from the given texts

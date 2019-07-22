@@ -15,6 +15,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	m.Predict()
 	infs, err := m.Infer("the dog is hairy.")
 	if err != nil {
 		panic(err)
