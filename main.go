@@ -9,15 +9,15 @@ import (
 )
 
 func main() {
-	path := "./python/output"
-	vocabPath := "./bert-models/uncased_L-12_H-768_A-12/vocab.txt"
-	m, err := model.NewBert(path, vocabPath, 64)
+	path := "/tmp/model/bert/export/output"
+	m, err := model.NewBert(path)
 	if err != nil {
 		panic(err)
 	}
-	infs, err := m.Infer("the dog is hairy.")
+	res, err := m.PredictValues("the dog is hairy.")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Inference Count: %d\n", len(infs))
+	vals := res[0].Value().([][][]float32)
+	fmt.Printf("Inference Count: %d - %v\n", len(res), vals[0][0][0:16])
 }

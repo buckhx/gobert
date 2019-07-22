@@ -23,6 +23,7 @@ type Feature struct {
 	TokenIDs []int32
 	Mask     []int32 // short?
 	TypeIDs  []int32 // seqeuence ids, short?
+	LabelIDs []int32
 }
 
 // Size will return the number of tokens in the feature by counting the mask bits
@@ -92,7 +93,6 @@ func (ff *FeatureFactory) Features(texts ...string) []Feature {
 // build features for the model from it
 func sequenceFeature(tkz tokenize.VocabTokenizer, seqLen int32, text string) Feature {
 	f := Feature{
-		ID:       0, // TODO
 		Tokens:   make([]string, seqLen),
 		TokenIDs: make([]int32, seqLen),
 		Mask:     make([]int32, seqLen),
