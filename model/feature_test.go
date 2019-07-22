@@ -20,11 +20,11 @@ func TestSequenceFeature(t *testing.T) {
 			ID:       0,
 			Tokens:   []string{"[CLS]", "the", "dog", "[SEP]", "the", "[SEP]", "[UNK]", "[SEP]"},
 			TokenIDs: []int32{0, 2, 3, 1, 2, 1, -1, 1},
-			Mask:     []int{1, 1, 1, 1, 1, 1, 1, 1},
-			TypeIDs:  []int{0, 0, 0, 0, 1, 1, 2, 2},
+			Mask:     []int32{1, 1, 1, 1, 1, 1, 1, 1},
+			TypeIDs:  []int32{0, 0, 0, 0, 1, 1, 2, 2},
 		}},
 	} {
-		f := SequenceFeature(tkz, 8, test.text)
+		f := sequenceFeature(tkz, 8, test.text)
 		if !reflect.DeepEqual(f, test.feature) {
 			t.Errorf("Invalid Sequence Feature - Want: %+v, Got: %+v", test.feature, f)
 		}
@@ -34,7 +34,7 @@ func TestSequenceFeature(t *testing.T) {
 func Test_sequenceTruncate(t *testing.T) {
 	for _, test := range []struct {
 		seqs   [][]string
-		len    int
+		len    int32
 		tokens [][]string
 	}{
 		{nil, 1, nil},

@@ -2,8 +2,10 @@ package model
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/buckhx/gobert/tokenize"
+	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
 // Static tokens
@@ -16,16 +18,79 @@ const (
 // Feature is an input feature for a BERT model.
 // Maps to extract_features.InputFeature in ref-impl
 type Feature struct {
-	ID       int
+	ID       int32
 	Tokens   []string
 	TokenIDs []int32
 	Mask     []int32 // short?
 	TypeIDs  []int32 // seqeuence ids, short?
 }
 
+// Size will return the number of tokens in the feature by counting the mask bits
+func (f Feature) Size() int {
+	var l int
+	for _, v := range f.Mask {
+		if v > 0 {
+			l += 1
+		}
+	}
+	return l
+}
+
+func Tensors(fs ...Feature) (map[string]*tf.Tensor, error) {
+	tids := make([][]int32, len(fs))
+	mask := make([][]int32, len(fs))
+	sids := make([][]int32, len(fs))
+	for i, f := range fs {
+		tids[i] = f.TokenIDs
+		mask[i] = f.Mask
+		sids[i] = f.TypeIDs
+	}
+	t, err := tf.NewTensor(tids)
+	if err != nil {
+		return nil, err
+	}
+	m, err := tf.NewTensor(mask)
+	if err != nil {
+		return nil, err
+	}
+	s, err := tf.NewTensor(sids)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]*tf.Tensor{
+		IDsOpName:     t,
+		MaskOpName:    m,
+		TypeIDsOpName: s,
+	}, nil
+}
+
+type FeatureFactory struct {
+	tokenizer tokenize.VocabTokenizer
+	seqLen    int32
+	count     uint32
+	lock      sync.Mutex
+}
+
+func (ff *FeatureFactory) Feature(text string) Feature {
+	f := sequenceFeature(ff.tokenizer, ff.seqLen, text)
+	ff.lock.Lock()
+	f.ID = int32(ff.count)
+	ff.count += 1
+	ff.lock.Unlock()
+	return f
+}
+
+func (ff *FeatureFactory) Features(texts ...string) []Feature {
+	fs := make([]Feature, len(texts))
+	for i, text := range texts {
+		fs[i] = ff.Feature(text)
+	}
+	return fs
+}
+
 // SequenceFeature will take a sequence string and
 // build features for the model from it
-func SequenceFeature(tkz tokenize.VocabTokenizer, seqLen int, text string) Feature {
+func sequenceFeature(tkz tokenize.VocabTokenizer, seqLen int32, text string) Feature {
 	f := Feature{
 		ID:       0, // TODO
 		Tokens:   make([]string, seqLen),
@@ -38,7 +103,7 @@ func SequenceFeature(tkz tokenize.VocabTokenizer, seqLen int, text string) Featu
 	for i, part := range parts {
 		seqs[i] = tkz.Tokenize(part)
 	}
-	seqs = truncate(seqs, seqLen-len(seqs)-1) // truncate w/ space for CLS/SEP
+	seqs = truncate(seqs, seqLen-int32(len(seqs))-1) // truncate w/ space for CLS/SEP
 	voc := tkz.Vocab()
 	var s int
 	f.Tokens[s] = ClassToken
@@ -64,12 +129,12 @@ func SequenceFeature(tkz tokenize.VocabTokenizer, seqLen int, text string) Featu
 }
 
 // truncate uses heuristic of trimming seq with longest len until seqlen satisfied
-func truncate(seqs [][]string, maxlen int) [][]string {
+func truncate(seqs [][]string, maxlen int32) [][]string {
 	// TODO test
 	// NOTE: this impl could be a bottleneck
-	var seqlen int
+	var seqlen int32
 	for i := range seqs {
-		seqlen += len(seqs[i])
+		seqlen += int32(len(seqs[i]))
 	}
 	for slen := seqlen; slen > maxlen; slen-- {
 		// Sort to get longest first
