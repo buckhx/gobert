@@ -1,5 +1,6 @@
 TF_ROOT=${GOPATH}/src/github.com/tensorflow/tensorflow
 TGO_ENV := LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow LD_LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow
+GOBERT_BASE_DIR ?= /tmp/model/bert/export/output
 
 check: lint test
 
@@ -8,8 +9,8 @@ clean:
 	rm -rf python/output/*
 	rm coverage.out
 
-go:
-	${TGO_ENV} go run main.go
+ex:
+	${TGO_ENV} GOBERT_BASE_DIR=${GOBERT_BASE_DIR} go run examples/embeddings/main.go
 
 .PHONY: model
 model:
