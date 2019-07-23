@@ -17,7 +17,11 @@ const (
 	OutputOp      = "outputs"
 )
 
-const DefaultSeqLen = 128
+const (
+	DefaultSeqLen    = 128
+	DefaultVocabFile = "vocab.txt"
+	DefaultModelTag  = "bert-uncased"
+)
 
 /*
 func NewBertClassifier(path string, opts ...BertOption) (Bert, error) {
@@ -32,34 +36,37 @@ func NewBertClassifier(path string, opts ...BertOption) (Bert, error) {
 */
 
 type TensorInputFunc func(map[string]*tf.Tensor) estimator.InputFunc
+type FeatureTensorFunc func(fs ...Feature) (map[string]*tf.Tensor, error)
 
 type ValueProvider interface {
 	Value() interface{}
 }
 
 type Bert struct {
-	m         *tf.SavedModel
-	p         estimator.Predictor
-	factory   *FeatureFactory
-	modelFunc estimator.ModelFunc
-	inputFunc TensorInputFunc
+	m          *tf.SavedModel
+	p          estimator.Predictor
+	factory    *FeatureFactory
+	modelFunc  estimator.ModelFunc
+	inputFunc  TensorInputFunc
+	tensorFunc FeatureTensorFunc
 }
 
+// Pipeline: text -> FeatureFactory -> TensorFunc -> InputFunc -> ModelFunc -> Value
 func NewBert(path string, opts ...BertOption) (Bert, error) {
-	tags := []string{"bert-uncased"} // TODO configure tags
-	voc, err := vocab.FromFile(path + "/vocab.txt")
+	voc, err := vocab.FromFile(path + "/" + DefaultVocabFile) // TODO os.Join
 	if err != nil {
 		return Bert{}, err
 	}
 	tkz := tokenize.NewTokenizer(voc)
 	fb := &FeatureFactory{tokenizer: tkz, seqLen: DefaultSeqLen}
-	m, err := tf.LoadSavedModel(path, tags, nil)
+	m, err := tf.LoadSavedModel(path, []string{DefaultModelTag}, nil)
 	if err != nil {
 		return Bert{}, err
 	}
 	b := Bert{
-		m:       m,
-		factory: fb,
+		m:          m,
+		factory:    fb,
+		tensorFunc: tensors,
 		inputFunc: func(inputs map[string]*tf.Tensor) estimator.InputFunc {
 			return func(m *tf.SavedModel) map[tf.Output]*tf.Tensor {
 				return map[tf.Output]*tf.Tensor{
@@ -83,9 +90,13 @@ func NewBert(path string, opts ...BertOption) (Bert, error) {
 	return b, nil
 }
 
+func (b Bert) Features(texts ...string) []Feature {
+	return b.factory.Features(texts...)
+}
+
 func (b Bert) PredictValues(texts ...string) ([]ValueProvider, error) {
 	fs := b.factory.Features(texts...)
-	inputs, err := Tensors(fs...)
+	inputs, err := b.tensorFunc(fs...)
 	if err != nil {
 		return nil, err
 	}

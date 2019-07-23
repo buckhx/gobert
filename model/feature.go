@@ -37,7 +37,7 @@ func (f Feature) Size() int {
 	return l
 }
 
-func Tensors(fs ...Feature) (map[string]*tf.Tensor, error) {
+func tensors(fs ...Feature) (map[string]*tf.Tensor, error) {
 	tids := make([][]int32, len(fs))
 	mask := make([][]int32, len(fs))
 	sids := make([][]int32, len(fs))
