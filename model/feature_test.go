@@ -18,6 +18,7 @@ func TestSequenceFeature(t *testing.T) {
 		// TODO more tests, but this one covers some good edge cases
 		{"the dog is hairy. ||| the ||| a dog is hairy", Feature{
 			ID:       0,
+			Text:     "the dog is hairy. ||| the ||| a dog is hairy",
 			Tokens:   []string{"[CLS]", "the", "dog", "[SEP]", "the", "[SEP]", "[UNK]", "[SEP]"},
 			TokenIDs: []int32{0, 2, 3, 1, 2, 1, -1, 1},
 			Mask:     []int32{1, 1, 1, 1, 1, 1, 1, 1},

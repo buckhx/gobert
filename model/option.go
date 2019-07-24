@@ -2,10 +2,25 @@ package model
 
 import (
 	"github.com/buckhx/gobert/model/estimator"
+	"github.com/buckhx/gobert/tokenize"
 	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
 type BertOption func(b Bert) Bert
+
+func WithTokenizer(tkz tokenize.VocabTokenizer) BertOption {
+	return func(b Bert) Bert {
+		b.factory.tokenizer = tkz
+		return b
+	}
+}
+
+func WithSeqLen(l int32) BertOption {
+	return func(b Bert) Bert {
+		b.factory.seqLen = l
+		return b
+	}
+}
 
 func WithFeatureFactory(ff *FeatureFactory) BertOption {
 	return func(b Bert) Bert {

@@ -11,29 +11,16 @@ import (
 
 // Operation names
 const (
-	IDsOpName     = "input_ids"
-	MaskOpName    = "input_mask"
-	TypeIDsOpName = "input_type_ids"
-	OutputOp      = "outputs"
+	//#	UniqueIDsOp    = "unique_ids"
+	InputIDsOp     = "input_ids"
+	InputMaskOp    = "input_mask"
+	InputTypeIDsOp = "input_type_ids"
 )
 
 const (
 	DefaultSeqLen    = 128
 	DefaultVocabFile = "vocab.txt"
-	DefaultModelTag  = "bert-uncased"
 )
-
-/*
-func NewBertClassifier(path string, opts ...BertOption) (Bert, error) {
-	return NewBert(path, append(opts,
-		WithModelFunc(func(m *tf.SavedModel) ([]tf.Output, []*tf.Operation) {
-			return []tf.Output{
-				m.Graph.Operation("SoftMax/Classifier").Output(0),
-			}, nil
-		}),
-	)...)
-}
-*/
 
 type TensorInputFunc func(map[string]*tf.Tensor) estimator.InputFunc
 type FeatureTensorFunc func(fs ...Feature) (map[string]*tf.Tensor, error)
@@ -52,33 +39,30 @@ type Bert struct {
 }
 
 // Pipeline: text -> FeatureFactory -> TensorFunc -> InputFunc -> ModelFunc -> Value
-func NewBert(path string, opts ...BertOption) (Bert, error) {
-	voc, err := vocab.FromFile(path + "/" + DefaultVocabFile) // TODO os.Join
+func NewBert(m *tf.SavedModel, vocabPath string, opts ...BertOption) (Bert, error) {
+	voc, err := vocab.FromFile(vocabPath)
 	if err != nil {
 		return Bert{}, err
 	}
 	tkz := tokenize.NewTokenizer(voc)
-	fb := &FeatureFactory{tokenizer: tkz, seqLen: DefaultSeqLen}
-	m, err := tf.LoadSavedModel(path, []string{DefaultModelTag}, nil)
-	if err != nil {
-		return Bert{}, err
-	}
 	b := Bert{
 		m:          m,
-		factory:    fb,
+		factory:    &FeatureFactory{tokenizer: tkz, seqLen: DefaultSeqLen},
 		tensorFunc: tensors,
 		inputFunc: func(inputs map[string]*tf.Tensor) estimator.InputFunc {
 			return func(m *tf.SavedModel) map[tf.Output]*tf.Tensor {
 				return map[tf.Output]*tf.Tensor{
-					m.Graph.Operation(IDsOpName).Output(0):     inputs[IDsOpName],
-					m.Graph.Operation(MaskOpName).Output(0):    inputs[MaskOpName],
-					m.Graph.Operation(TypeIDsOpName).Output(0): inputs[TypeIDsOpName],
+					//	m.Graph.Operation(UniqueIDsOp).Output(0):    inputs[UniqueIDsOp],
+					m.Graph.Operation(InputIDsOp).Output(0):     inputs[InputIDsOp],
+					m.Graph.Operation(InputMaskOp).Output(0):    inputs[InputMaskOp],
+					m.Graph.Operation(InputTypeIDsOp).Output(0): inputs[InputTypeIDsOp],
 				}
 			}
 		},
 		modelFunc: func(m *tf.SavedModel) ([]tf.Output, []*tf.Operation) {
 			return []tf.Output{
-					m.Graph.Operation(OutputOp).Output(0),
+					m.Graph.Operation(EmbeddingOp).Output(0),
+					//		m.Graph.Operation("feature_ids").Output(0),
 				},
 				nil
 		},
@@ -88,6 +72,7 @@ func NewBert(path string, opts ...BertOption) (Bert, error) {
 	}
 	b.p = estimator.NewPredictor(m, b.modelFunc)
 	return b, nil
+
 }
 
 func (b Bert) Features(texts ...string) []Feature {
@@ -112,7 +97,7 @@ func (b Bert) PredictValues(texts ...string) ([]ValueProvider, error) {
 	return vals, nil
 }
 
-func printModel(m *tf.SavedModel) {
+func Print(m *tf.SavedModel) {
 	fmt.Printf("%+v\n", m)
 	fmt.Println("Session")
 	fmt.Println("\tDevice")
@@ -126,6 +111,10 @@ func printModel(m *tf.SavedModel) {
 	fmt.Println("Graph")
 	fmt.Println("\tOperation")
 	for _, op := range m.Graph.Operations() {
-		fmt.Printf("\t\t%+v\n", op.Name())
+		fmt.Printf("\t\t%s %s\t%d/%d\n", op.Name(), op.Type(), op.NumInputs(), op.NumOutputs())
+		for i := 0; i < op.NumOutputs(); i++ {
+			o := op.Output(i)
+			fmt.Printf("\t\t\t%v %s\n", o.DataType(), o.Shape())
+		}
 	}
 }

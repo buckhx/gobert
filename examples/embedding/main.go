@@ -9,7 +9,7 @@ import (
 
 func main() {
 	path := os.Getenv("GOBERT_BASE_DIR")
-	m, err := model.NewBert(path)
+	m, err := model.NewEmbeddings(path)
 	if err != nil {
 		panic(err)
 	}
@@ -22,7 +22,7 @@ func main() {
 	fs := m.Features(texts...)
 	fmt.Println("\nWord Embeddings")
 	for i, s := range vals {
-		fmt.Println(texts[i])
+		fmt.Println(texts[i], fs[i].ID)
 		for j, toks := range s {
 			if toks[0] == 0 {
 				break // Hack to not print whole vector
