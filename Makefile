@@ -1,6 +1,6 @@
 TF_ROOT=${GOPATH}/src/github.com/tensorflow/tensorflow
 TGO_ENV := LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow LD_LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow
-GOBERT_BASE_DIR ?= /tmp/model/bert/export/embedding
+GOBERT_BASE_DIR ?= var/export/embedding_optimized
 
 check: lint test
 
@@ -15,8 +15,11 @@ go:
 ex/embedding:
 	${TGO_ENV} GOBERT_BASE_DIR=${GOBERT_BASE_DIR} go run examples/embedding/main.go
 
-ex/classifier:
-	${TGO_ENV} GOBERT_BASE_DIR=${GOBERT_BASE_DIR} go run examples/classifier/main.go
+search:
+	${TGO_ENV} go run ./examples/semantic-search var/export/embedding_optimized var/glue/QQP/original/quora.csv
+
+ex/%:
+	${TGO_ENV} GOBERT_BASE_DIR=${GOBERT_BASE_DIR} go run examples/$*/main.go
 
 .PHONY: model
 model:

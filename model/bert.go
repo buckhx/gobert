@@ -80,20 +80,25 @@ func (b Bert) Features(texts ...string) []Feature {
 }
 
 func (b Bert) PredictValues(texts ...string) ([]ValueProvider, error) {
+	fmt.Println("Building Features...")
 	fs := b.factory.Features(texts...)
 	inputs, err := b.tensorFunc(fs...)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Done Building")
+	fmt.Println("Predicting...")
 	res, err := b.p.Predict(b.inputFunc(inputs))
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("Done TF Predicting")
 	//	return res, nil
 	vals := make([]ValueProvider, len(res))
 	for i, t := range res {
 		vals[i] = ValueProvider(t)
 	}
+	fmt.Println("Done Value Casting")
 	return vals, nil
 }
 

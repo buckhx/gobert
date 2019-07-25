@@ -7,6 +7,13 @@ import (
 	"github.com/buckhx/gobert/model"
 )
 
+/*
+1. Download base model
+2. Fine tune w/ run_classifier
+3. export_classifier $MODEL_DIR $EXPORT_DIR 2
+4. GOBERT_BASE_DIR=$EXPORT_DIR go run main.go
+
+*/
 func main() {
 	path := os.Getenv("GOBERT_BASE_DIR")
 	m, err := model.NewBertClassifier(path, path+"/vocab.txt")
