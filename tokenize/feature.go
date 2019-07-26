@@ -1,11 +1,8 @@
-package model
+package tokenize
 
 import (
 	"strings"
 	"sync"
-
-	"github.com/buckhx/gobert/tokenize"
-	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
 // Static tokens
@@ -24,11 +21,10 @@ type Feature struct {
 	TokenIDs []int32
 	Mask     []int32 // short?
 	TypeIDs  []int32 // seqeuence ids, short?
-	//	LabelIDs []int32
 }
 
-// Size will return the number of tokens in the feature by counting the mask bits
-func (f Feature) Size() int {
+// Count will return the number of tokens in the feature by counting the mask bits
+func (f Feature) Count() int {
 	var l int
 	for _, v := range f.Mask {
 		if v > 0 {
@@ -38,52 +34,15 @@ func (f Feature) Size() int {
 	return l
 }
 
-func tensors(fs ...Feature) (map[string]*tf.Tensor, error) {
-	//	uids := make([]int32, len(fs))
-	tids := make([][]int32, len(fs))
-	mask := make([][]int32, len(fs))
-	sids := make([][]int32, len(fs))
-	for i, f := range fs {
-		//		uids[i] = f.ID
-		tids[i] = f.TokenIDs
-		mask[i] = f.Mask
-		sids[i] = f.TypeIDs
-	}
-	/*
-		u, err := tf.NewTensor(uids)
-		if err != nil {
-			return nil, err
-		}
-	*/
-	t, err := tf.NewTensor(tids)
-	if err != nil {
-		return nil, err
-	}
-	m, err := tf.NewTensor(mask)
-	if err != nil {
-		return nil, err
-	}
-	s, err := tf.NewTensor(sids)
-	if err != nil {
-		return nil, err
-	}
-	return map[string]*tf.Tensor{
-		//UniqueIDsOp:    u,
-		InputIDsOp:     t,
-		InputMaskOp:    m,
-		InputTypeIDsOp: s,
-	}, nil
-}
-
 type FeatureFactory struct {
-	tokenizer tokenize.VocabTokenizer
-	seqLen    int32
-	count     int32
+	Tokenizer VocabTokenizer
+	SeqLen    int32
 	lock      sync.Mutex
+	count     int32
 }
 
 func (ff *FeatureFactory) Feature(text string) Feature {
-	f := sequenceFeature(ff.tokenizer, ff.seqLen, text)
+	f := sequenceFeature(ff.Tokenizer, ff.SeqLen, text)
 	ff.lock.Lock()
 	f.ID = ff.count
 	ff.count += 1
@@ -101,7 +60,7 @@ func (ff *FeatureFactory) Features(texts ...string) []Feature {
 
 // SequenceFeature will take a sequence string and
 // build features for the model from it
-func sequenceFeature(tkz tokenize.VocabTokenizer, seqLen int32, text string) Feature {
+func sequenceFeature(tkz VocabTokenizer, seqLen int32, text string) Feature {
 	f := Feature{
 		Text:     text,
 		Tokens:   make([]string, seqLen),

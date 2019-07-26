@@ -23,7 +23,7 @@ const (
 )
 
 type TensorInputFunc func(map[string]*tf.Tensor) estimator.InputFunc
-type FeatureTensorFunc func(fs ...Feature) (map[string]*tf.Tensor, error)
+type FeatureTensorFunc func(fs ...tokenize.Feature) (map[string]*tf.Tensor, error)
 
 type ValueProvider interface {
 	Value() interface{}
@@ -32,7 +32,7 @@ type ValueProvider interface {
 type Bert struct {
 	m          *tf.SavedModel
 	p          estimator.Predictor
-	factory    *FeatureFactory
+	factory    *tokenize.FeatureFactory
 	modelFunc  estimator.ModelFunc
 	inputFunc  TensorInputFunc
 	tensorFunc FeatureTensorFunc
@@ -47,7 +47,7 @@ func NewBert(m *tf.SavedModel, vocabPath string, opts ...BertOption) (Bert, erro
 	tkz := tokenize.NewTokenizer(voc)
 	b := Bert{
 		m:          m,
-		factory:    &FeatureFactory{tokenizer: tkz, seqLen: DefaultSeqLen},
+		factory:    &tokenize.FeatureFactory{Tokenizer: tkz, SeqLen: DefaultSeqLen},
 		tensorFunc: tensors,
 		inputFunc: func(inputs map[string]*tf.Tensor) estimator.InputFunc {
 			return func(m *tf.SavedModel) map[tf.Output]*tf.Tensor {
@@ -75,7 +75,7 @@ func NewBert(m *tf.SavedModel, vocabPath string, opts ...BertOption) (Bert, erro
 
 }
 
-func (b Bert) Features(texts ...string) []Feature {
+func (b Bert) Features(texts ...string) []tokenize.Feature {
 	return b.factory.Features(texts...)
 }
 
@@ -122,4 +122,41 @@ func Print(m *tf.SavedModel) {
 			fmt.Printf("\t\t\t%v %s\n", o.DataType(), o.Shape())
 		}
 	}
+}
+
+func tensors(fs ...tokenize.Feature) (map[string]*tf.Tensor, error) {
+	//	uids := make([]int32, len(fs))
+	tids := make([][]int32, len(fs))
+	mask := make([][]int32, len(fs))
+	sids := make([][]int32, len(fs))
+	for i, f := range fs {
+		//		uids[i] = f.ID
+		tids[i] = f.TokenIDs
+		mask[i] = f.Mask
+		sids[i] = f.TypeIDs
+	}
+	/*
+		u, err := tf.NewTensor(uids)
+		if err != nil {
+			return nil, err
+		}
+	*/
+	t, err := tf.NewTensor(tids)
+	if err != nil {
+		return nil, err
+	}
+	m, err := tf.NewTensor(mask)
+	if err != nil {
+		return nil, err
+	}
+	s, err := tf.NewTensor(sids)
+	if err != nil {
+		return nil, err
+	}
+	return map[string]*tf.Tensor{
+		//UniqueIDsOp:    u,
+		InputIDsOp:     t,
+		InputMaskOp:    m,
+		InputTypeIDsOp: s,
+	}, nil
 }

@@ -10,19 +10,19 @@ type BertOption func(b Bert) Bert
 
 func WithTokenizer(tkz tokenize.VocabTokenizer) BertOption {
 	return func(b Bert) Bert {
-		b.factory.tokenizer = tkz
+		b.factory.Tokenizer = tkz
 		return b
 	}
 }
 
 func WithSeqLen(l int32) BertOption {
 	return func(b Bert) Bert {
-		b.factory.seqLen = l
+		b.factory.SeqLen = l
 		return b
 	}
 }
 
-func WithFeatureFactory(ff *FeatureFactory) BertOption {
+func WithFeatureFactory(ff *tokenize.FeatureFactory) BertOption {
 	return func(b Bert) Bert {
 		b.factory = ff
 		return b

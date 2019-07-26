@@ -1,16 +1,15 @@
-package model
+package tokenize
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/buckhx/gobert/tokenize"
 	"github.com/buckhx/gobert/vocab"
 )
 
-func TestSequenceFeature(t *testing.T) {
+func Test_sequenceFeature(t *testing.T) {
 	voc := vocab.New([]string{"[CLS]", "[SEP]", "the", "dog", "is", "hairy", "."})
-	tkz := tokenize.NewTokenizer(voc)
+	tkz := NewTokenizer(voc)
 	for _, test := range []struct {
 		text    string
 		feature Feature
