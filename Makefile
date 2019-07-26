@@ -1,6 +1,6 @@
 TF_ROOT=${GOPATH}/src/github.com/tensorflow/tensorflow
 TGO_ENV := LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow LD_LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow
-GOBERT_BASE_DIR ?= var/export/embedding_optimized
+MODEL_PATH ?= var/export/embedding_optimized
 
 check: lint test
 
@@ -10,21 +10,20 @@ clean:
 	rm coverage.out
 
 go:
-	${TGO_ENV} GOBERT_BASE_DIR=${GOBERT_BASE_DIR} go run main.go
+	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run main.go
 
-ex/embedding:
-	${TGO_ENV} GOBERT_BASE_DIR=${GOBERT_BASE_DIR} go run examples/embedding/main.go
-
-search:
+ex/search:
 	${TGO_ENV} go run ./examples/semantic-search var/export/embedding_optimized var/glue/QQP/original/quora.csv
 
 ex/%:
-	${TGO_ENV} GOBERT_BASE_DIR=${GOBERT_BASE_DIR} go run examples/$*/main.go
+	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run ./examples/$*
 
-.PHONY: model
-model:
+model/classifier:
+	cd python && python export_embedding.py ${MODEL_PATH} var/export/classifier 2
+
+model/embedding:
 	# TODO flexible model w/ download
-	cd python && python export.py
+	cd python && python export_embedding.py ${MODEL_PATH} var/export/embedding
 
 inspect_model/%:
 	python ${TF_ROOT}/tensorflow/python/tools/saved_model_cli.py show --dir=$* --all

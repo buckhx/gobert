@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	path := os.Getenv("GOBERT_BASE_DIR")
+	path := os.Getenv("MODEL_PATH")
 	m, err := model.NewEmbeddings(path)
 	if err != nil {
 		panic(err)

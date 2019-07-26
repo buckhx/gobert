@@ -28,12 +28,13 @@ func (f Feature) Count() int {
 	var l int
 	for _, v := range f.Mask {
 		if v > 0 {
-			l += 1
+			l++
 		}
 	}
 	return l
 }
 
+// FeatureFactory will create features with the supplied tokenizer and sequence length
 type FeatureFactory struct {
 	Tokenizer VocabTokenizer
 	SeqLen    int32
@@ -41,15 +42,18 @@ type FeatureFactory struct {
 	count     int32
 }
 
+// Feature will create a single feature from the factory
+// ID creation is thread safe and incremental
 func (ff *FeatureFactory) Feature(text string) Feature {
 	f := sequenceFeature(ff.Tokenizer, ff.SeqLen, text)
 	ff.lock.Lock()
 	f.ID = ff.count
-	ff.count += 1
+	ff.count++
 	ff.lock.Unlock()
 	return f
 }
 
+// Features will create multiple features with incremental IDs
 func (ff *FeatureFactory) Features(texts ...string) []Feature {
 	fs := make([]Feature, len(texts))
 	for i, text := range texts {

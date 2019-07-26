@@ -13,3 +13,4 @@
 
 bert-models/
 var/
+*.pyc
