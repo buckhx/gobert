@@ -6,6 +6,7 @@ import (
 
 	"github.com/buckhx/gobert/tokenize"
 	"github.com/buckhx/gobert/vocab"
+	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 	}
 	tkz := tokenize.NewTokenizer(voc)
 	ff := tokenize.FeatureFactory{Tokenizer: tkz, SeqLen: 120}
-	fs := ff.Feature("the dog is hairy.")
+	f := ff.Feature("the dog is hairy.")
 	m, err := tf.LoadSavedModel(modelPath, []string{"bert-untuned"}, nil)
 	if err != nil {
 		panic(err)
@@ -48,7 +49,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("DataType", vec[0].DataType())
-	fmt.Println("Shape", vec[0].Shape())
-	fmt.Println("Value", vec[0].Value().([][][]float32))
+	fmt.Println("DataType", res[0].DataType())
+	fmt.Println("Shape", res[0].Shape())
+	fmt.Println("Value", res[0].Value().([][][]float32))
 }

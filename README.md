@@ -55,7 +55,7 @@ There is a loose coupling with the model package and exported models interop wit
 - [X] Python Classifier
 - [ ] Go Classifier
 - [X] Semantic Search Example
-- [ ] Raw Model Example
+- [X] Raw Model Example
 - [ ] Token Lookup
 - [ ] Model Download
 - [ ] Documentation
