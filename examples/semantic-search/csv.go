@@ -5,25 +5,29 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
+// TextHeader is the required column name in the CSV
+// It is case-insensitive
 const TextHeader = "text"
 
 // readCSV will read a CSV file and parse the records into maps keyed by column headers, requires a column with the header "text"
-func readCSV(path string) ([]map[string]string, error) {
+func readCSV(path string, d rune) ([]map[string]string, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 	rows := csv.NewReader(f)
+	rows.Comma = d
 	headers, err := rows.Read()
 	if err != nil {
 		return nil, err
 	}
 	tdx := -1
 	for i, h := range headers {
-		if h == TextHeader {
+		if strings.ToLower(h) == TextHeader {
 			tdx = i
 			break
 		}
@@ -37,7 +41,8 @@ func readCSV(path string) ([]map[string]string, error) {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			return nil, err
+			fmt.Println("Warning:", err)
+			//return nil, err
 		}
 		rec := make(map[string]string, len(row))
 		for i, v := range row {

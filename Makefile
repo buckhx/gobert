@@ -13,7 +13,7 @@ go:
 	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run main.go
 
 ex/search:
-	${TGO_ENV} go run ./examples/semantic-search var/export/embedding_optimized var/glue/QQP/original/quora.csv
+	${TGO_ENV} go run ./examples/semantic-search -d=\t var/export/embedding_optimized var/quotes/quotes.csv
 
 ex/%:
 	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run ./examples/$*

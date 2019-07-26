@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"strings"
+
 	"github.com/buckhx/gobert/model"
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/gonum/stat"
-	"strings"
 )
 
 type engine struct {
@@ -14,8 +16,8 @@ type engine struct {
 	vecs []mat.Vector
 }
 
-func newEngine(modelPath, csvPath string) (engine, error) {
-	recs, err := readCSV(csvPath)
+func newEngine(modelPath, csvPath string, d rune) (engine, error) {
+	recs, err := readCSV(csvPath, d)
 	if err != nil {
 		return engine{}, err
 	}
@@ -25,15 +27,16 @@ func newEngine(modelPath, csvPath string) (engine, error) {
 		texts[i] = rec[TextHeader]
 		c += len(strings.Split(rec[TextHeader], " "))
 	}
+	fmt.Println("Average tokens per text", (c/len(texts))+2)         // Account for CLS/SEP
 	mod, err := model.NewEmbeddings(modelPath, model.WithSeqLen(16)) // TODO config, avg 11 in quora
 	if err != nil {
 		return engine{}, err
 	}
 	var vecs []mat.Vector
-	bsize := 32 // TOD Obetter batching
+	bsize := 16 // TOD Obetter batching
 	for to := bsize; to < len(texts)-bsize; to += bsize {
-		fmt.Println("Items", to)
 		from := to - bsize
+		log.Printf("Predicting Batch Size %d [%d,%d)", bsize, from, to)
 		batch := texts[from:to]
 		res, err := mod.PredictValues(batch...)
 		if err != nil {
@@ -44,6 +47,7 @@ func newEngine(modelPath, csvPath string) (engine, error) {
 			vecs = append(vecs, MeanPool(sent))
 		}
 	}
+	//TODO submit final batch
 	return engine{
 		mod:  mod,
 		recs: recs,

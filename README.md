@@ -16,6 +16,14 @@ TensorFlow provides APIs for use in Go programs. These APIs are particularly wel
 Be a real gopher, keep it simple! Use Python to define & train models; you can always load trained models and using them with Go later!
 ```
 
+### Install steps
+
+1. Download Pre-Trained (untuned) Model
+2. Fine-Tune if desired via run_classifier or through another mechanism
+3. Export Model via export_embedding
+4. Install TF C Lib, TBD if can lift .so from python install
+5. Set LIBRARY_PATH & LD_LIBRARY_PATH
+
 ### Notes
 
 * SeqLen has large impact on performance
@@ -65,6 +73,7 @@ There is a loose coupling with the model package and exported models interop wit
 - [ ] Binary CMD
 
 # TBD
+- [ ] Pool layers in python or post-process
 - [ ] gonum interop
 - [ ] first class wrapper API ([][][]float32 -> []Embedding)
 - [ ] proto interops
