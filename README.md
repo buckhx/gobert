@@ -3,6 +3,8 @@
 [![GoDoc](https://godoc.org/github.com/buckhx/gobert?status.svg)](https://godoc.org/github.com/buckhx/gobert)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+# Under Active Development
+
 Go bindings for operationalizing BERT models. Train in Python, run in Go.
 
 The following advice from Go TensorFlow applies:
