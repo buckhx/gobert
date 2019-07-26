@@ -43,6 +43,7 @@ def export_classifier(args):
 
         _,_,_, probs = create_model(bert_config, False, input_ids, input_mask,
                                     segment_ids, label_ids, num_labels, False)
+        probs = tf.identity(probs, 'probabilities')
         return {
             #'label_ids': label_ids,
             'input_ids': input_ids,
