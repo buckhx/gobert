@@ -36,6 +36,7 @@ type Bert struct {
 	modelFunc  estimator.ModelFunc
 	inputFunc  TensorInputFunc
 	tensorFunc FeatureTensorFunc
+	verbose    bool
 }
 
 // Pipeline: text -> FeatureFactory -> TensorFunc -> InputFunc -> ModelFunc -> Value
@@ -80,26 +81,31 @@ func (b Bert) Features(texts ...string) []tokenize.Feature {
 }
 
 func (b Bert) PredictValues(texts ...string) ([]ValueProvider, error) {
-	fmt.Println("Building Features...")
+	b.println("Building Features...")
 	fs := b.factory.Features(texts...)
 	inputs, err := b.tensorFunc(fs...)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Done Building")
-	fmt.Println("Predicting...")
+	b.println("Done Building")
+	b.println("Predicting...")
 	res, err := b.p.Predict(b.inputFunc(inputs))
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Done TF Predicting")
-	//	return res, nil
+	b.println("Done Predicting")
 	vals := make([]ValueProvider, len(res))
 	for i, t := range res {
 		vals[i] = ValueProvider(t)
 	}
-	fmt.Println("Done Value Casting")
+	b.println("Done Value Casting")
 	return vals, nil
+}
+
+func (b Bert) println(msg ...interface{}) {
+	if b.verbose {
+		fmt.Println(msg...)
+	}
 }
 
 func Print(m *tf.SavedModel) {

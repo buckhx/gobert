@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/buckhx/gobert/model"
 )
@@ -30,5 +31,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(res[0].Value().([][]float32))
+	probs := res[0].Value().([][]float32)
+	for i, text := range texts {
+		pairs := strings.Split(text, " ||| ")
+		same := probs[i][1]
+		msg := "Unsure"
+		if same > 0.8 {
+			msg = "Same"
+		} else if same < 0.2 {
+			msg = "Different"
+		}
+		fmt.Println("Meaning:", msg)
+		fmt.Printf("\t%q\n\t%q\n\t%v\n", pairs[0], pairs[1], probs[i])
+	}
 }

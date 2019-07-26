@@ -21,7 +21,7 @@ func main() {
 		panic(err)
 	}
 	stdin := bufio.NewScanner(os.Stdin)
-	fmt.Println("Engine Initialized\n")
+	fmt.Printf("Engine Initialized\n\n")
 	fmt.Println("Enter Query or \"exit\":")
 	for stdin.Scan() {
 		q := stdin.Text()
@@ -35,7 +35,7 @@ func main() {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Println("Suggestion: ", res, "\n")
+			fmt.Printf("Suggestion: %+v\n\n", res)
 		}
 		fmt.Println("Enter Query or \"exit\":")
 	}

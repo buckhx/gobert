@@ -5,6 +5,7 @@ import (
 	"github.com/buckhx/gobert/model"
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/gonum/stat"
+	"strings"
 )
 
 type engine struct {
@@ -18,29 +19,30 @@ func newEngine(modelPath, csvPath string) (engine, error) {
 	if err != nil {
 		return engine{}, err
 	}
+	c := 0
 	texts := make([]string, len(recs))
 	for i, rec := range recs {
 		texts[i] = rec[TextHeader]
+		c += len(strings.Split(rec[TextHeader], " "))
 	}
-	mod, err := model.NewEmbeddings(modelPath, model.WithSeqLen(64))
+	mod, err := model.NewEmbeddings(modelPath, model.WithSeqLen(16)) // TODO config, avg 11 in quora
 	if err != nil {
 		return engine{}, err
 	}
 	var vecs []mat.Vector
 	bsize := 32 // TOD Obetter batching
 	for to := bsize; to < len(texts)-bsize; to += bsize {
+		fmt.Println("Items", to)
 		from := to - bsize
 		batch := texts[from:to]
 		res, err := mod.PredictValues(batch...)
 		if err != nil {
 			return engine{}, err
 		}
-		fmt.Println("Pooling embeddings...")
 		vals := res[0].Value().([][][]float32)
 		for _, sent := range vals {
 			vecs = append(vecs, MeanPool(sent))
 		}
-		fmt.Println("Done Pooling")
 	}
 	return engine{
 		mod:  mod,
