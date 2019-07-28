@@ -6,65 +6,93 @@ import (
 	"strings"
 
 	"github.com/buckhx/gobert/model"
+	"golang.org/x/sync/errgroup"
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/gonum/stat"
 )
 
+// engine is a simple semantic search engine for demonstrating using a BERT model
+// It is not exported because it is not meant to be used outside of demonstration purposes
 type engine struct {
 	mod  model.Bert
 	recs []map[string]string
 	vecs []mat.Vector
 }
 
-func newEngine(modelPath, csvPath string, d rune) (engine, error) {
-	recs, err := readCSV(csvPath, d)
+func newEngine(modelPath string, seqlen int32) (*engine, error) {
+	mod, err := model.NewEmbeddings(modelPath,
+		model.WithSeqLen(seqlen),
+	)
 	if err != nil {
-		return engine{}, err
+		return nil, err
 	}
-	c := 0
-	texts := make([]string, len(recs))
-	for i, rec := range recs {
-		texts[i] = rec[TextHeader]
-		c += len(strings.Split(rec[TextHeader], " "))
-	}
-	fmt.Println("Average tokens per text", (c/len(texts))+2)         // Account for CLS/SEP
-	mod, err := model.NewEmbeddings(modelPath, model.WithSeqLen(16)) // TODO config, avg 11 in quora
-	if err != nil {
-		return engine{}, err
-	}
-	var vecs []mat.Vector
-	bsize := 16 // TOD Obetter batching
-	for to := bsize; to < len(texts)-bsize; to += bsize {
-		from := to - bsize
-		log.Printf("Predicting Batch Size %d [%d,%d)", bsize, from, to)
-		batch := texts[from:to]
-		res, err := mod.PredictValues(batch...)
-		if err != nil {
-			return engine{}, err
-		}
-		vals := res[0].Value().([][][]float32)
-		for _, sent := range vals {
-			vecs = append(vecs, MeanPool(sent))
-		}
-	}
-	//TODO submit final batch
-	return engine{
-		mod:  mod,
-		recs: recs,
-		vecs: vecs,
+	return &engine{
+		mod: mod,
 	}, nil
 }
 
-func (e engine) search(text string) (map[string]string, error) {
+func (e *engine) loadCSV(csvPath string, d rune) error {
+	recs, err := readCSV(csvPath, d)
+	if err != nil {
+		return err
+	}
+	tc := 0
+	texts := make([]string, len(recs))
+	for i, rec := range recs {
+		texts[i] = rec[TextHeader]
+		tc += len(strings.Split(rec[TextHeader], " "))
+	}
+	fmt.Println("Average Token Per Text Estimate:", tc/len(texts))
+	bsize := _batch                 // TODO batch from flag
+	type rng struct{ from, to int } // [from, to)
+	ranges := make(chan rng)
+	go func() {
+		var from, to int
+		for from = 0; to < len(texts)-bsize; from = to {
+			to += bsize
+			ranges <- rng{from: from, to: to}
+		}
+		ranges <- rng{from: to, to: len(texts)} // final batch
+		close(ranges)
+	}()
+	vecs := make([]mat.Vector, len(texts))
+	var workers errgroup.Group
+	for i := 0; i < _workerCount; i++ {
+		w := i
+		workers.Go(func() error {
+			for b := range ranges {
+				log.Printf("Worker %d - Predicting Batch Size %d [%d,%d)", w, bsize, b.from, b.to)
+				batch := texts[b.from:b.to]
+				res, err := e.mod.PredictValues(batch...)
+				if err != nil {
+					return err
+				}
+				vals := res[0].Value().([][][]float32)
+				for i, v := range vals {
+					vecs[i+b.from] = meanPool(v)
+				}
+			}
+			return nil
+		})
+	}
+	if err := workers.Wait(); err != nil {
+		return err
+	}
+	e.vecs = append(e.vecs, vecs...)
+	e.recs = append(e.recs, recs...)
+	return nil
+}
+
+func (e *engine) search(text string) (map[string]string, error) {
 	res, err := e.mod.PredictValues(text)
 	if err != nil {
 		return nil, err
 	}
-	qvec := MeanPool(res[0].Value().([][][]float32)[0])
+	qvec := meanPool(res[0].Value().([][][]float32)[0])
 	idx := -1
 	score := 0.0
 	for i, vec := range e.vecs {
-		sim := CosSim(qvec, vec)
+		sim := cosSim(qvec, vec)
 		if sim > score {
 			idx = i
 			score = sim
@@ -73,7 +101,8 @@ func (e engine) search(text string) (map[string]string, error) {
 	return e.recs[idx], nil
 }
 
-func MeanPool(toks [][]float32) mat.Vector {
+// TODO extract this into a reusable package
+func meanPool(toks [][]float32) mat.Vector {
 	c := len(toks[0])
 	vec := mat.NewVecDense(c, nil)
 	x := make([]float64, c)
@@ -86,7 +115,6 @@ func MeanPool(toks [][]float32) mat.Vector {
 	return vec
 }
 
-func CosSim(x, y mat.Vector) float64 {
+func cosSim(x, y mat.Vector) float64 {
 	return (mat.Dot(x, y)) / (mat.Norm(x, 2) * mat.Norm(y, 2))
-
 }

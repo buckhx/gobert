@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 )
 
 // TextHeader is the required column name in the CSV
-// It is case-insensitive
+// It is case-sensitive
 const TextHeader = "text"
 
 // readCSV will read a CSV file and parse the records into maps keyed by column headers, requires a column with the header "text"
@@ -27,7 +26,7 @@ func readCSV(path string, d rune) ([]map[string]string, error) {
 	}
 	tdx := -1
 	for i, h := range headers {
-		if strings.ToLower(h) == TextHeader {
+		if h == TextHeader {
 			tdx = i
 			break
 		}

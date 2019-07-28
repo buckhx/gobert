@@ -5,17 +5,20 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime"
 )
 
 const ExitText = "exit"
 
+// Using a convention for this project that _* is a cmdline arg
 var (
-	_batch     int
-	_seqlen    int
-	_delim     string
-	_d         rune
-	_modelPath string
-	_csvPath   string
+	_batch       int
+	_seqlen      int
+	_delim       string
+	_d           rune
+	_workerCount int
+	_modelPath   string
+	_csvPath     string
 )
 
 func init() {
@@ -26,6 +29,7 @@ func init() {
 	flag.IntVar(&_batch, "b", 32, "Size of batch to encode")
 	flag.IntVar(&_seqlen, "seqlen", 16, "Max sequence length")
 	flag.StringVar(&_delim, "d", ",", `CSV delimiter char, ex -d=\t`)
+	flag.IntVar(&_workerCount, "w", runtime.NumCPU(), "Number of workers for prediction")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) != 2 {
@@ -43,10 +47,14 @@ func init() {
 }
 
 func main() {
-	e, err := newEngine(_modelPath, _csvPath, _d)
+	e, err := newEngine(_modelPath, int32(_seqlen))
 	if err != nil {
 		exit("Error:", err)
 	}
+	if err = e.loadCSV(_csvPath, _d); err != nil {
+		exit("Error:", err)
+	}
+	fmt.Println(e.recs)
 	stdin := bufio.NewScanner(os.Stdin)
 	fmt.Printf("Engine Initialized\n\n")
 	fmt.Println("Enter Query or \"exit\":")
@@ -72,7 +80,7 @@ func main() {
 }
 
 func exit(msgs ...interface{}) {
-	fmt.Fprintln(os.Stderr, msgs...)
 	flag.Usage()
+	fmt.Fprintln(os.Stderr, msgs...)
 	os.Exit(1)
 }

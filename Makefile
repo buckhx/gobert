@@ -1,6 +1,6 @@
-TF_ROOT=${GOPATH}/src/github.com/tensorflow/tensorflow
-TGO_ENV := LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow LD_LIBRARY_PATH=${TF_ROOT}/bazel-bin/tensorflow
-MODEL_PATH ?= var/export/embedding_optimized
+TFLIB=$(shell cd var/lib && pwd)
+TGO_ENV := LIBRARY_PATH=${LIBRARY_PATH}:${TFLIB} LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${TFLIB} DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${TFLIB}
+MODEL_PATH ?= var/export/embedding
 
 check: lint test
 
@@ -9,11 +9,14 @@ clean:
 	rm -rf python/output/*
 	rm coverage.out
 
+get:
+	${TGO_ENV} go get ./...
+
 go:
 	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run main.go
 
 ex/search:
-	${TGO_ENV} go run ./examples/semantic-search -d=\t var/export/embedding_optimized var/quotes/quotes.csv
+	${TGO_ENV} go run ./examples/semantic-search -d=\t ${MODEL_PATH} var/quotes/quotes.csv
 
 ex/%:
 	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run ./examples/$*

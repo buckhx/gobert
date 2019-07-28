@@ -1,3 +1,5 @@
+import os.path
+
 import tensorflow as tf
 
 
@@ -17,7 +19,7 @@ def export(model_path, export_path, transfer_func,
         # TODO investigate optimize_graph
         checkpoint = tf.train.latest_checkpoint(model_path)
         if checkpoint is None: # untuned doesn't have latest
-            checkpoint = model_path+"/bert_model.ckpt"
+            checkpoint = os.path.join(model_path, "bert_model.ckpt")
         saver.restore(sess, checkpoint)
         b = tf.saved_model.builder.SavedModelBuilder(export_path)
         b.add_meta_graph_and_variables(sess, tags, {sig_name: sig},
