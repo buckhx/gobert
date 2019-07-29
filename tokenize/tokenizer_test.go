@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/buckhx/gobert/tokenize"
-	"github.com/buckhx/gobert/vocab"
+	"github.com/buckhx/gobert/tokenize/vocab"
 )
 
 func TestBasic(t *testing.T) {

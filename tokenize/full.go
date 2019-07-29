@@ -1,6 +1,6 @@
 package tokenize
 
-import "github.com/buckhx/gobert/vocab"
+import "github.com/buckhx/gobert/tokenize/vocab"
 
 // Full is a FullTokenizer which comprises of a Basic & Wordpiece tokenizer
 type Full struct {

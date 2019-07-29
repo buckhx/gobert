@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/buckhx/gobert/vocab"
+	"github.com/buckhx/gobert/tokenize/vocab"
 )
 
 func Test_sequenceFeature(t *testing.T) {

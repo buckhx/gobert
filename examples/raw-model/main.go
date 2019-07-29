@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/buckhx/gobert/tokenize"
-	"github.com/buckhx/gobert/vocab"
+	"github.com/buckhx/gobert/tokenize/vocab"
 	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 

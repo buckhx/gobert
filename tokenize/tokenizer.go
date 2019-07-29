@@ -4,7 +4,7 @@
 // for example, BERT considers '$' punctuation, but unicode does not.
 package tokenize
 
-import "github.com/buckhx/gobert/vocab"
+import "github.com/buckhx/gobert/tokenize/vocab"
 
 // Tokenizer is an interface for chunking a string into it's tokens as per the BERT implematation
 type Tokenizer interface {

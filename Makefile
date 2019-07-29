@@ -9,6 +9,11 @@ clean:
 	rm -rf python/output/*
 	rm coverage.out
 
+cover: cover/func
+
+cover/%:
+	go tool cover -$*=coverage.out
+
 get:
 	${TGO_ENV} go get ./...
 

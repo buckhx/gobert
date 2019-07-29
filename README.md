@@ -7,6 +7,8 @@
 
 Go bindings for operationalizing BERT models. Train in Python, run in Go.
 
+This is a work in progress and should not used until a version has be tagged and a go.mod is present
+
 The following advice from Go TensorFlow applies:
 ```
 TensorFlow provides a Go API— particularly useful for loading models created with Python and running them within a Go application.
@@ -28,7 +30,6 @@ Be a real gopher, keep it simple! Use Python to define & train models; you can a
 
 * SeqLen has large impact on performance
 * Perf is not great, need to determine if it's from python model or go runtime
-* goimports isnt running, so may have messy imports
 * model package is WIP
 
 ## Examples
@@ -43,14 +44,15 @@ Be a real gopher, keep it simple! Use Python to define & train models; you can a
 ### Tokenize
 
 The tokenize package includes methods to create BERT input features. It is fairly stable and can be used independently of the model package.
+This will be its own module since it does not require tensorflow bindings.
 
-### Vocab
+#### Vocab
 
-The vocab package is a simple container for BERT vocabs
+The vocab package is a simple container for BERT vocabs. Could be rolled into tokenize.
 
 ###  Model
 
-The model package is an experimental package to work with models exported 
+The model package is an experimental package to work with models exported. Requires tensorflow.
 
 ### Python
 
@@ -71,6 +73,8 @@ There is a loose coupling with the model package and exported models interop wit
 - [ ] Test Coverage 
 - [ ] Benchmark
 - [ ] Binary CMD
+- [ ] Docker
+- [ ] go mod init
 
 # TBD
 - [ ] Pool layers in python or post-process
