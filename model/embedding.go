@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	EmbeddingModelTag = "bert-untuned"
+	EmbeddingModelTag = "bert-pretrained"
 	EmbeddingOp       = "embedding"
 )
 

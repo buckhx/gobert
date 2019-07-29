@@ -19,7 +19,7 @@ func main() {
 	tkz := tokenize.NewTokenizer(voc)
 	ff := tokenize.FeatureFactory{Tokenizer: tkz, SeqLen: 120}
 	f := ff.Feature("the dog is hairy.")
-	m, err := tf.LoadSavedModel(modelPath, []string{"bert-untuned"}, nil)
+	m, err := tf.LoadSavedModel(modelPath, []string{"bert-pretrained"}, nil)
 	if err != nil {
 		panic(err)
 	}
