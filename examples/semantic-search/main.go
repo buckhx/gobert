@@ -1,3 +1,4 @@
+// Package main is an example of a semantic search engine using BERT embeddings
 package main
 
 import (
@@ -9,6 +10,7 @@ import (
 	"runtime"
 )
 
+// ExitText is the keyword to type from STDIN to exit the query loop
 const ExitText = "exit"
 
 // Using a convention for this project that _* is a cmdline arg
@@ -72,10 +74,10 @@ func main() {
 			}
 			fmt.Printf("-> %s\n", res[TextHeader])
 			fmt.Printf("\tSimilarity Score (%.2f)\n", score)
-			if score < 0.9 {
-				fmt.Println("\tNot so sure about that, might need to look somewhere else...")
-			} else {
+			if score > 0.89 {
 				fmt.Println("\tLGTM")
+			} else {
+				fmt.Println("\tNot so sure about that, might need to look somewhere else...")
 			}
 		}
 		fmt.Printf("\nEnter Query or \"exit\":\n\n")

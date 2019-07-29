@@ -1,5 +1,6 @@
-// Package tokenize supplies tokenizzation operations for BERT.
+// Package tokenize supplies tokenization operations for BERT.
 // Ports the tokenizer.py capbilites from the core BERT repo
+//
 // NOTE: All defintions are related to BERT and may vary from unicode defintions,
 // for example, BERT considers '$' punctuation, but unicode does not.
 package tokenize
