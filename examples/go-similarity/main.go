@@ -35,17 +35,17 @@ func main() {
 		fmt.Println("Pooling...")
 		embs := make([]mat.Vector, len(vals))
 		for s, sent := range vals {
-			vec := Pool(sent)
+			vec := pool(sent)
 			embs[s] = vec
 		}
 		fmt.Println("Done Pooling.")
 		for i := 1; i < len(vals); i++ {
-			fmt.Printf("%q, %q -> %v\n", texts[0], texts[i], CosSim(embs[0], embs[i]))
+			fmt.Printf("%q, %q -> %v\n", texts[0], texts[i], cosSim(embs[0], embs[i]))
 		}
 	}
 }
 
-func Pool(toks [][]float32) mat.Vector {
+func pool(toks [][]float32) mat.Vector {
 	c := len(toks[0])
 	vec := mat.NewVecDense(c, nil)
 	x := make([]float64, c)
@@ -58,7 +58,7 @@ func Pool(toks [][]float32) mat.Vector {
 	return vec
 }
 
-func CosSim(x, y mat.Vector) float64 {
+func cosSim(x, y mat.Vector) float64 {
 	return (mat.Dot(x, y)) / (mat.Norm(x, 2) * mat.Norm(y, 2))
 
 }

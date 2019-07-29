@@ -4,6 +4,7 @@ import (
 	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
+// Embedding Defaults
 const (
 	EmbeddingModelTag = "bert-pretrained"
 	EmbeddingOp       = "embedding"

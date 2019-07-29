@@ -3,11 +3,12 @@ package model
 import (
 	"github.com/buckhx/gobert/model/estimator"
 	"github.com/buckhx/gobert/tokenize"
-	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
+// BertOption configures a BERT model
 type BertOption func(b Bert) Bert
 
+// WithTokenizer applies the given tokenizer to the model
 func WithTokenizer(tkz tokenize.VocabTokenizer) BertOption {
 	return func(b Bert) Bert {
 		b.factory.Tokenizer = tkz
@@ -15,6 +16,7 @@ func WithTokenizer(tkz tokenize.VocabTokenizer) BertOption {
 	}
 }
 
+// WithSeqLen applies the seqlen, should match max_seq_len from trained model
 func WithSeqLen(l int32) BertOption {
 	return func(b Bert) Bert {
 		b.factory.SeqLen = l
@@ -22,6 +24,7 @@ func WithSeqLen(l int32) BertOption {
 	}
 }
 
+// WithFeatureFactory replaces the default feature factory
 func WithFeatureFactory(ff *tokenize.FeatureFactory) BertOption {
 	return func(b Bert) Bert {
 		b.factory = ff
@@ -29,6 +32,7 @@ func WithFeatureFactory(ff *tokenize.FeatureFactory) BertOption {
 	}
 }
 
+// WithModelFunc applies the given model func, used when outputs do not match the default
 func WithModelFunc(fn estimator.ModelFunc) BertOption {
 	return func(b Bert) Bert {
 		b.modelFunc = fn
@@ -36,16 +40,10 @@ func WithModelFunc(fn estimator.ModelFunc) BertOption {
 	}
 }
 
+// WithInputFunc updates the input func, used if input tensors vary from defaults
 func WithInputFunc(fn TensorInputFunc) BertOption {
 	return func(b Bert) Bert {
 		b.inputFunc = fn
-		return b
-	}
-}
-
-func WithSavedModel(m *tf.SavedModel) BertOption {
-	return func(b Bert) Bert {
-		b.m = m
 		return b
 	}
 }

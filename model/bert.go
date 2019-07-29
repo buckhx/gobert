@@ -1,3 +1,4 @@
+// Package model provides functionality for working with exported BERT models
 package model
 
 import (
@@ -17,18 +18,25 @@ const (
 	InputTypeIDsOp = "input_type_ids"
 )
 
+// Default values
 const (
 	DefaultSeqLen    = 128
 	DefaultVocabFile = "vocab.txt"
 )
 
+// TensorInputFunc maps tensors to an estimator.InputFunc in the Predict pipeline
 type TensorInputFunc func(map[string]*tf.Tensor) estimator.InputFunc
+
+// FeatureTensorFunc translates features to tensors
 type FeatureTensorFunc func(fs ...tokenize.Feature) (map[string]*tf.Tensor, error)
 
+// ValueProvider is a simple interface for tensors responses without the baggage
 type ValueProvider interface {
 	Value() interface{}
 }
 
+// Bert is a model that translates features to values from an exported model. It processes as follows:
+// Pipeline: text -> FeatureFactory -> TensorFunc -> InputFunc -> ModelFunc -> Value
 type Bert struct {
 	m          *tf.SavedModel
 	p          estimator.Predictor
@@ -39,7 +47,8 @@ type Bert struct {
 	verbose    bool
 }
 
-// Pipeline: text -> FeatureFactory -> TensorFunc -> InputFunc -> ModelFunc -> Value
+// NewBert will create a new default BERT model from the exported model and vocab.
+// Generally used for producing embeddings
 func NewBert(m *tf.SavedModel, vocabPath string, opts ...BertOption) (Bert, error) {
 	voc, err := vocab.FromFile(vocabPath)
 	if err != nil {
@@ -76,10 +85,13 @@ func NewBert(m *tf.SavedModel, vocabPath string, opts ...BertOption) (Bert, erro
 
 }
 
+// Features will tokenize a text
 func (b Bert) Features(texts ...string) []tokenize.Feature {
 	return b.factory.Features(texts...)
 }
 
+// PredictValues will run the BERT model on the provided texts.
+// The returned values are in the same order as the provided texts.
 func (b Bert) PredictValues(texts ...string) ([]ValueProvider, error) {
 	b.println("Building Features...")
 	fs := b.factory.Features(texts...)
@@ -108,6 +120,7 @@ func (b Bert) println(msg ...interface{}) {
 	}
 }
 
+// Print is a utility for printing the operations in a saved model
 func Print(m *tf.SavedModel) {
 	fmt.Printf("%+v\n", m)
 	fmt.Println("Session")

@@ -12,6 +12,7 @@ type predictor struct {
 	targets []*tf.Operation
 }
 
+// NewPredictor creates a new Predictor in lieu of a full estimator
 func NewPredictor(m *tf.SavedModel, fn ModelFunc) Predictor {
 	outputs, targets := fn(m)
 	return predictor{
@@ -21,6 +22,7 @@ func NewPredictor(m *tf.SavedModel, fn ModelFunc) Predictor {
 	}
 }
 
+// Predictor will apply fn to the estimator model
 func (p predictor) Predict(fn InputFunc) ([]*tf.Tensor, error) {
 	inputs := fn(p.m)
 	return p.m.Session.Run(inputs, p.outputs, p.targets)
