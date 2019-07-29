@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -42,7 +41,7 @@ func (e *engine) loadCSV(csvPath string, d rune) error {
 		texts[i] = rec[TextHeader]
 		tc += len(strings.Split(rec[TextHeader], " "))
 	}
-	fmt.Println("Average Token Per Text Estimate:", tc/len(texts))
+	log.Println("Average Token Per Text Estimate:", tc/len(texts))
 	bsize := _batch                 // TODO batch from flag
 	type rng struct{ from, to int } // [from, to)
 	ranges := make(chan rng)
@@ -83,10 +82,10 @@ func (e *engine) loadCSV(csvPath string, d rune) error {
 	return nil
 }
 
-func (e *engine) search(text string) (map[string]string, error) {
+func (e *engine) search(text string) (map[string]string, float64, error) {
 	res, err := e.mod.PredictValues(text)
 	if err != nil {
-		return nil, err
+		return nil, 0.0, err
 	}
 	qvec := meanPool(res[0].Value().([][][]float32)[0])
 	idx := -1
@@ -98,7 +97,7 @@ func (e *engine) search(text string) (map[string]string, error) {
 			score = sim
 		}
 	}
-	return e.recs[idx], nil
+	return e.recs[idx], score, nil
 }
 
 // TODO extract this into a reusable package

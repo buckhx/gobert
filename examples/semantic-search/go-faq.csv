@@ -1,0 +1,78 @@
+text
+What is the purpose of the project?
+What is the history of the project?
+What's the origin of the gopher mascot?
+Is the language called Go or Golang?
+Why did you create a new language?
+What are Go's ancestors?
+What are the guiding principles in the design?
+Is Google using Go internally?
+What other companies use Go?
+Do Go programs link with C/C++ programs?
+What IDEs does Go support?
+Does Go support Google's protocol buffers?
+Can I translate the Go home page into another language?
+Does Go have a runtime?
+What's up with Unicode identifiers?
+Why does Go not have feature X?
+Why does Go not have generic types?
+Why does Go not have exceptions?
+Why does Go not have assertions?
+Why build concurrency on the ideas of CSP?
+Why goroutines instead of threads?
+Why are map operations not defined to be atomic?
+Will you accept my language change?
+Is Go an object-oriented language?
+How do I get dynamic dispatch of methods?
+Why is there no type inheritance?
+Why is len a function and not a method?
+Why does Go not support overloading of methods and operators?
+Why doesn't Go have "implements" declarations?
+How can I guarantee my type satisfies an interface?
+Why doesn't type T satisfy the Equal interface?
+Can I convert a []T to an []interface{}?
+Can I convert []T1 to []T2 if T1 and T2 have the same underlying type?
+Why is my nil error value not equal to nil?
+Why are there no untagged unions, as in C?
+Why does Go not have variant types?
+Why does Go not have covariant result types?
+Why does Go not provide implicit numeric conversions?
+How do constants work in Go?
+Why are maps built in?
+Why don't maps allow slices as keys?
+Why are maps, slices, and channels references while arrays are values?
+How are libraries documented?
+Is there a Go programming style guide?
+How do I submit patches to the Go libraries?
+Why does "go get" use HTTPS when cloning a repository?
+How should I manage package versions using "go get"?
+When are function parameters passed by value?
+When should I use a pointer to an interface?
+Should I define methods on values or pointers?
+What's the difference between new and make?
+What is the size of an int on a 64 bit machine?
+How do I know whether a variable is allocated on the heap or the stack?
+Why does my Go process use so much virtual memory?
+What operations are atomic? What about mutexes?
+Why doesn't my program run faster with more CPUs?
+How can I control the number of CPUs?
+Why is there no goroutine ID?
+Why do T and *T have different method sets?
+What happens with closures running as goroutines?
+Why does Go not have the ?: operator?
+How do I create a multifile package?
+How do I write a unit test?
+Where is my favorite helper function for testing?
+Why isn't X in the standard library?
+What compiler technology is used to build the compilers?
+How is the run-time support implemented?
+Why is my trivial program such a large binary?
+Can I stop these complaints about my unused variable/import?
+Why does my virus-scanning software think my Go distribution or compiled binary is infected?
+Why does Go perform badly on benchmark X?
+Why is the syntax so different from C?
+Why are declarations backwards?
+Why is there no pointer arithmetic?
+Why are ++ and -- statements and not expressions? And why postfix, not prefix?
+Why are there braces but no semicolons? And why can't I put the opening brace on the next line?
+Why do garbage collection? Won't it be too expensive?

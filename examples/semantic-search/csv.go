@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 	"os"
 )
 
@@ -40,8 +41,7 @@ func readCSV(path string, d rune) ([]map[string]string, error) {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("Warning:", err)
-			//return nil, err
+			log.Println("Warning:", err)
 		}
 		rec := make(map[string]string, len(row))
 		for i, v := range row {

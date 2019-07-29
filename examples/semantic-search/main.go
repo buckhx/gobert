@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 )
@@ -54,10 +55,9 @@ func main() {
 	if err = e.loadCSV(_csvPath, _d); err != nil {
 		exit("Error:", err)
 	}
-	fmt.Println(e.recs)
 	stdin := bufio.NewScanner(os.Stdin)
-	fmt.Printf("Engine Initialized\n\n")
-	fmt.Println("Enter Query or \"exit\":")
+	log.Printf("Engine Initialized\n\n")
+	fmt.Printf("Enter Query or \"exit\":\n\n")
 	for stdin.Scan() {
 		q := stdin.Text()
 		switch q {
@@ -66,13 +66,19 @@ func main() {
 			return
 		case "":
 		default:
-			res, err := e.search(q)
+			res, score, err := e.search(q)
 			if err != nil {
 				exit("Error:", err)
 			}
-			fmt.Printf("Suggestion: %+v\n\n", res)
+			fmt.Printf("-> %s\n", res[TextHeader])
+			fmt.Printf("\tSimilarity Score (%.2f)\n", score)
+			if score < 0.9 {
+				fmt.Println("\tNot so sure about that, might need to look somewhere else...")
+			} else {
+				fmt.Println("\tLGTM")
+			}
 		}
-		fmt.Println("Enter Query or \"exit\":")
+		fmt.Printf("\nEnter Query or \"exit\":\n\n")
 	}
 	if stdin.Err() != nil {
 		exit("Error:", err)

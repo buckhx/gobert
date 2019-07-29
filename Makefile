@@ -16,7 +16,7 @@ go:
 	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run main.go
 
 ex/search:
-	${TGO_ENV} go run ./examples/semantic-search -d=\t ${MODEL_PATH} var/quotes/quotes.csv
+	${TGO_ENV} go run ./examples/semantic-search -seqlen=16 -d='|' ${MODEL_PATH} ./examples/semantic-search/go-faq.csv
 
 ex/%:
 	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run ./examples/$*
