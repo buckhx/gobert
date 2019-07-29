@@ -36,7 +36,7 @@ This project attempts to minimize dependencies
 
 ## Prereqs
 
-1. [Install Tensorflow for C](https://www.tensorflow.org/install/lang_c)
+1. [Install Tensorflow for C](https://www.tensorflow.org/install/lang_c) (ideally to ./var/lib)
 2. Install Docker (Optional, but suggested)
 
 ## Run Demo

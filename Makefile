@@ -30,9 +30,9 @@ get:
 image/export:
 	cd export && docker build -t ${EXPORT_IMAGE} .
 
-inspect_model/%:
-	# TODO drop in favor of CMD
-	python ${TF_ROOT}/tensorflow/python/tools/saved_model_cli.py show --dir=$* --all
+#inspect_model/%:
+#	# TODO drop in favor of CMD
+#	python ${TF_ROOT}/tensorflow/python/tools/saved_model_cli.py show --dir=$* --all
 
 lint:
 	go vet ./...
