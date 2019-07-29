@@ -8,6 +8,9 @@ Go bindings for operationalizing [BERT](https://github.com/google-research/bert)
 Simply put, gobert translates text sentences from any language into fixed length vectors called "embeddings".
 These embeddings can be used for downstream learning tasks or directly for comparison.
 
+[![asciicast](https://asciinema.org/a/259849.png)](https://asciinema.org/a/259849?t=10s)
+
+
 ### BERT
 
 BERT is a state of the art NLP model that can be leveraged for transfer learning into domain specific use cases.
