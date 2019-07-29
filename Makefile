@@ -18,7 +18,7 @@ cover/%:
 	go tool cover -$*=${COVERFILE}
 
 ex/search:
-	${TGO_ENV} go run ./examples/semantic-search -seqlen=16 -d='|' ${MOUNT_PATH}/export/${MODEL} ./examples/semantic-search/go-faq.csv
+	${TGO_ENV} go run ./examples/semantic-search -seqlen=16 ${MOUNT_PATH}/export/${MODEL} ./examples/semantic-search/go-faq.csv
 
 ex/%:
 	${TGO_ENV} MODEL_PATH=${MODEL_PATH} go run ./examples/$*

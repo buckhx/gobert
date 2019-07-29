@@ -27,25 +27,25 @@ How do I get dynamic dispatch of methods?
 Why is there no type inheritance?
 Why is len a function and not a method?
 Why does Go not support overloading of methods and operators?
-Why doesn't Go have "implements" declarations?
+"Why doesn't Go have ""implements"" declarations?"
 How can I guarantee my type satisfies an interface?
 Why doesn't type T satisfy the Equal interface?
 Can I convert a []T to an []interface{}?
 Can I convert []T1 to []T2 if T1 and T2 have the same underlying type?
 Why is my nil error value not equal to nil?
-Why are there no untagged unions, as in C?
+"Why are there no untagged unions, as in C?"
 Why does Go not have variant types?
 Why does Go not have covariant result types?
 Why does Go not provide implicit numeric conversions?
 How do constants work in Go?
 Why are maps built in?
 Why don't maps allow slices as keys?
-Why are maps, slices, and channels references while arrays are values?
+"Why are maps, slices, and channels references while arrays are values?"
 How are libraries documented?
 Is there a Go programming style guide?
 How do I submit patches to the Go libraries?
-Why does "go get" use HTTPS when cloning a repository?
-How should I manage package versions using "go get"?
+"Why does ""go get"" use HTTPS when cloning a repository?"
+"How should I manage package versions using ""go get""?"
 When are function parameters passed by value?
 When should I use a pointer to an interface?
 Should I define methods on values or pointers?
@@ -73,6 +73,6 @@ Why does Go perform badly on benchmark X?
 Why is the syntax so different from C?
 Why are declarations backwards?
 Why is there no pointer arithmetic?
-Why are ++ and -- statements and not expressions? And why postfix, not prefix?
+"Why are ++ and -- statements and not expressions? And why postfix, not prefix?"
 Why are there braces but no semicolons? And why can't I put the opening brace on the next line?
 Why do garbage collection? Won't it be too expensive?
