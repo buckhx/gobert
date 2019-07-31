@@ -7,6 +7,26 @@ import (
 	"github.com/buckhx/gobert/tokenize/vocab"
 )
 
+func TestFeatureCount(t *testing.T) {
+	voc := vocab.New([]string{"[CLS]", "[SEP]", "the", "dog", "is", "hairy", "."})
+	ff := FeatureFactory{Tokenizer: NewTokenizer(voc), SeqLen: 7}
+	for _, test := range []struct {
+		text  string
+		count int
+	}{
+		{"", 2},
+		{"the", 3},
+		{"hello", 3},
+		{"there we go", 6},
+		{"mama mia, there we go again", 7},
+	} {
+		f := ff.Features(test.text)[0]
+		if f.Count() != test.count {
+			t.Errorf("Invalid Feature Count - Want: %d, Got %d", test.count, f.Count())
+		}
+	}
+}
+
 func Test_sequenceFeature(t *testing.T) {
 	voc := vocab.New([]string{"[CLS]", "[SEP]", "the", "dog", "is", "hairy", "."})
 	tkz := NewTokenizer(voc)

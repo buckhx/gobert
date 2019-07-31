@@ -5,7 +5,22 @@ import (
 	"testing"
 )
 
-// https://arxiv.org/pdf/1609.08144.pdf
+func TestTestBasicLower(t *testing.T) {
+	for i, test := range []struct {
+		text   string
+		lower  bool
+		tokens []string
+	}{
+		{"HELLó THERE", true, []string{"hello", "there"}},
+		{"HELLó THERE", false, []string{"HELLó", "THERE"}},
+	} {
+		toks := Basic{Lower: test.lower}.Tokenize(test.text)
+		if !reflect.DeepEqual(toks, test.tokens) {
+			t.Errorf("Test %d - Invalid Lowering %t - Want: %s, Got: %s", i, test.lower, test.tokens, toks)
+
+		}
+	}
+}
 
 func Test_tokenizeWhitespace(t *testing.T) {
 	for i, test := range []struct {

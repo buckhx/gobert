@@ -8,6 +8,8 @@ Go bindings for operationalizing [BERT](https://github.com/google-research/bert)
 Simply put, gobert translates text sentences from any language into fixed length vectors called "embeddings".
 These embeddings can be used for downstream learning tasks or directly for comparison.
 
+
+The following demo shows a simple semantic search engine directly comparing sentence vectors.
 [![asciicast](https://asciinema.org/a/259849.png)](https://asciinema.org/a/259849?t=10s)
 
 
